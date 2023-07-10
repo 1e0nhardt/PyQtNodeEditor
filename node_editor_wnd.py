@@ -9,6 +9,7 @@ from rich.console import Console
 from node_graphics_view import QDMGraphicsView
 from node_node import Node
 from node_scene import Scene
+from node_socket import Socket
 
 CONSOLE = Console(width=120)
 
@@ -34,7 +35,7 @@ class NodeEditorWnd(QWidget):
         self.scene = Scene()
         # self.grScene = self.scene.grScene
         
-        node = Node(self.scene, 'My Awesome Node')
+        node = Node(self.scene, 'My Awesome Node', inputs=[1,2,3], outputs=[1])
 
         # create graph view
         self.view = QDMGraphicsView(self.scene.grScene)
