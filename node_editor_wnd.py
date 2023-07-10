@@ -5,6 +5,7 @@ from PyQt6.QtGui import *
 from PyQt6.QtCore import *
 from node_scene import Scene
 from node_graphics_view import QDMGraphicsView
+from node_node import Node
 
 
 class NodeEditorWnd(QWidget):
@@ -23,16 +24,18 @@ class NodeEditorWnd(QWidget):
 
         # create graph scene
         self.scene = Scene()
-        self.grScene = self.scene.grScene
+        # self.grScene = self.scene.grScene
+        
+        node = Node(self.scene, 'My Awesome Node')
 
         # create graph view
-        self.view = QDMGraphicsView(self.grScene)
+        self.view = QDMGraphicsView(self.scene.grScene)
         self._layout.addWidget(self.view)
 
         self.setWindowTitle('Node Editor')
         self.show()
 
-        self.addDebugContent()
+        # self.addDebugContent()
     
     def addDebugContent(self):
         green_brush = QBrush(Qt.GlobalColor.green)
