@@ -37,3 +37,10 @@ class Node(object):
             y = self.grNode.title_height + self.grNode.radius + self.grNode.title_padding + index * self.socket_spacing
 
         return x, y
+    
+    @property
+    def pos(self):
+        return self.grNode.pos()
+        
+    def setPos(self, x, y):
+        self.grNode.setPos(x, y)

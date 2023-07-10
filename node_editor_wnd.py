@@ -9,7 +9,7 @@ from rich.console import Console
 from node_graphics_view import QDMGraphicsView
 from node_node import Node
 from node_scene import Scene
-from node_socket import Socket
+from node_edge import *
 
 CONSOLE = Console(width=120)
 
@@ -35,7 +35,8 @@ class NodeEditorWnd(QWidget):
         self.scene = Scene()
         # self.grScene = self.scene.grScene
         
-        node = Node(self.scene, 'My Awesome Node', inputs=[1,2,3], outputs=[1])
+        self.addNodes()
+        # self.addDebugContent()
 
         # create graph view
         self.view = QDMGraphicsView(self.scene.grScene)
@@ -44,7 +45,17 @@ class NodeEditorWnd(QWidget):
         self.setWindowTitle('Node Editor')
         self.show()
 
-        # self.addDebugContent()
+    def addNodes(self):
+        node1 = Node(self.scene, 'My Awesome Node 1', inputs=[1,2,3], outputs=[1])
+        node2 = Node(self.scene, 'My Awesome Node 2', inputs=[1,2,3], outputs=[1])
+        node3 = Node(self.scene, 'My Awesome Node 3', inputs=[1,2,3], outputs=[1])
+        node1.setPos(-250, -250)
+        node2.setPos(150, 20)
+        node3.setPos(-150, 50)
+
+        edge1 = Edge(self.scene, node1.outputs[0], node2.inputs[0], type=EDGE_TYPE_DIRCET)
+        edge2 = Edge(self.scene, node3.outputs[0], node2.inputs[1], type=EDGE_TYPE_BEZIER)
+
     
     def loadStyleSheet(self, filename):
         CONSOLE.print(f'Loading StyleSheet: {filename}', style='blue')
