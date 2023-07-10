@@ -3,6 +3,7 @@ from PyQt6 import QtCore, QtGui
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
+from PyQt6.QtWidgets import QGraphicsSceneMouseEvent
 
 
 class QDMGraphicsNode(QGraphicsItem):
@@ -94,3 +95,7 @@ class QDMGraphicsNode(QGraphicsItem):
         painter.setPen(self._pen_default if not self.isSelected() else self._pen_selected)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(outline)
+    
+    def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        super().mouseMoveEvent(event)
+        self.node.updateConnectedEdges()

@@ -7,12 +7,13 @@ BOTTOM_RIGHT = 4
 
 class Socket(object):
 
-    def __init__(self, node, index=0, position=TOP_LEFT) -> None:
+    def __init__(self, node, index=0, position=TOP_LEFT, socket_type=1) -> None:
         self.node = node
         self.index = index
         self.position = position
+        self.socket_type = socket_type
 
-        self.qrSocket = QDMGraphicsSocket(self.node.grNode)
+        self.qrSocket = QDMGraphicsSocket(self.node.grNode, self.socket_type)
         self.qrSocket.setPos(*self.node.getSocketPosition(index, position))
 
         self.edge = None
@@ -22,3 +23,6 @@ class Socket(object):
 
     def setConnectedEdge(self, edge):
         self.edge = edge
+
+    def hasEdge(self):
+        return self.edge is not None

@@ -7,13 +7,20 @@ from PyQt6.QtWidgets import *
 
 class QDMGraphicsSocket(QGraphicsItem):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, socket_type=1):
         super().__init__(parent)
 
         self.radius = 6
         self.outline_width = 1.0
 
-        self._color_background = QColor("#FFFF7700")
+        self._colors = [
+            QColor('#FFFF7700'),
+            QColor('#FF522e22'),
+            QColor('#FF357700'),
+            QColor('#FF127745'),
+            QColor('#FF993366'),
+        ]
+        self._color_background = self._colors[socket_type]
         self._color_outline = QColor("#FF000000")
 
         self._pen = QPen(self._color_outline)

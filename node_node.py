@@ -21,11 +21,11 @@ class Node(object):
         self.outputs = []
 
         for index, item in enumerate(inputs):
-            socket = Socket(self, index, position=BOTTOM_LEFT)
+            socket = Socket(self, index, position=BOTTOM_LEFT, socket_type=item)
             self.inputs.append(socket)
         
         for index, item in enumerate(outputs):
-            socket = Socket(self, index, position=TOP_RIGHT)
+            socket = Socket(self, index, position=TOP_RIGHT, socket_type=item)
             self.outputs.append(socket)
     
     def getSocketPosition(self, index, position):
@@ -44,3 +44,9 @@ class Node(object):
 
     def setPos(self, x, y):
         self.grNode.setPos(x, y)
+
+    def updateConnectedEdges(self):
+        for socket in self.inputs + self.outputs:
+            if socket.hasEdge():
+                socket.edge.updatePosition()
+        
