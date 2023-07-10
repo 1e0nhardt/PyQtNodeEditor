@@ -36,6 +36,12 @@ class QDMGraphicsEdge(QGraphicsPathItem):
     def updatePath(self):
         raise NotImplemented('This method has to be implemented in a child class')
     
+    def setStartPoint(self, x, y):
+        self.pointStart = [x, y]
+    
+    def setDestPoint(self, x, y):
+        self.pointDest = [x, y]
+    
 
 class QDMGraphicsEdgeDirect(QDMGraphicsEdge):
 
