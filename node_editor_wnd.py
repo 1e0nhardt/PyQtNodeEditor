@@ -3,7 +3,7 @@ from PyQt6 import QtCore
 from PyQt6.QtWidgets import *
 from PyQt6.QtGui import *
 from PyQt6.QtCore import *
-from node_graphics_scene import QDMGraphicsScene
+from node_scene import Scene
 from node_graphics_view import QDMGraphicsView
 
 
@@ -22,7 +22,8 @@ class NodeEditorWnd(QWidget):
         self.setLayout(self._layout)
 
         # create graph scene
-        self.grScene = QDMGraphicsScene()
+        self.scene = Scene()
+        self.grScene = self.scene.grScene
 
         # create graph view
         self.view = QDMGraphicsView(self.grScene)
