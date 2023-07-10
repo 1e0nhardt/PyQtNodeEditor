@@ -3,14 +3,14 @@ from PyQt6 import QtCore, QtGui
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
-from PyQt6.QtWidgets import QStyleOptionGraphicsItem, QWidget
 
 
 class QDMGraphicsNode(QGraphicsItem):
-
-    def __init__(self, node, title="Graphics Node", parent=None) -> None:
+    
+    def __init__(self, node, parent=None) -> None:
         super().__init__(parent)
         self.node = node
+        self.content = self.node.content
 
         self._title_color = QColor(Qt.GlobalColor.white)
         self._title_font = QFont('consolas')
@@ -28,7 +28,11 @@ class QDMGraphicsNode(QGraphicsItem):
         self._brush_background = QBrush(QColor('#E3212121'))
 
         self.initTitle()
-        self.title = title
+        self.title = self.node.title
+
+        #TODO init socket
+
+        self.initContent()
 
         self.initUI()
     
@@ -43,8 +47,17 @@ class QDMGraphicsNode(QGraphicsItem):
         self.title_item.setPos(self.title_padding, 0)
         self.title_item.setTextWidth(self.width - 2*self.title_padding)
     
+    def initContent(self):
+        self.grContent = QGraphicsProxyWidget(self)
+        self.content.setGeometry(self.radius, self.title_height + self.radius, 
+                                self.width - 2*self.radius, self.height - 2*self.radius - self.title_height)
+        self.grContent.setWidget(self.content) # 将 QWidget 包装为 QGraphicsItem
+    
     def boundingRect(self) -> QRectF:
-        return QRectF(0, 0, self.width, self.height)
+        return QRectF(0, 0, 
+                self.width + 2*self.radius,
+                self.height + 2*self.radius
+                ).normalized()
     
     @property
     def title(self):
@@ -54,7 +67,7 @@ class QDMGraphicsNode(QGraphicsItem):
         self._title = value
         self.title_item.setPlainText(self._title)
     
-    def paint(self, painter: QPainter, option: QStyleOptionGraphicsItem, widget: QWidget | None = ...) -> None:
+    def paint(self, painter, option, widget=None) -> None:
         # 节点标题
         path_title = QPainterPath()
         path_title.setFillRule(Qt.FillRule.WindingFill)

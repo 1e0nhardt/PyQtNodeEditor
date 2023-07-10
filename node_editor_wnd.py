@@ -1,17 +1,25 @@
 import typing
+
 from PyQt6 import QtCore
-from PyQt6.QtWidgets import *
-from PyQt6.QtGui import *
 from PyQt6.QtCore import *
-from node_scene import Scene
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
+from rich.console import Console
+
 from node_graphics_view import QDMGraphicsView
 from node_node import Node
+from node_scene import Scene
+
+CONSOLE = Console(width=120)
 
 
 class NodeEditorWnd(QWidget):
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
+
+        self.stylesheet_filename = 'qss/nodestyle.qss'
+        self.loadStyleSheet(self.stylesheet_filename)
 
         self.initUI()
 
@@ -36,6 +44,13 @@ class NodeEditorWnd(QWidget):
         self.show()
 
         # self.addDebugContent()
+    
+    def loadStyleSheet(self, filename):
+        CONSOLE.print(f'Loading StyleSheet: {filename}', style='blue')
+        file = QFile(filename)
+        file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text)
+        styleSheet = file.readAll()
+        QApplication.instance().setStyleSheet(str(styleSheet, encoding='utf-8'))
     
     def addDebugContent(self):
         green_brush = QBrush(Qt.GlobalColor.green)
