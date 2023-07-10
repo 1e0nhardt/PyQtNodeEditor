@@ -3,6 +3,12 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 
+from node_graphics_socket import QDMGraphicsSocket
+from utils import CONSOLE
+
+MODE_NOOP = 1
+MODE_DRAG_EDGE = 2
+
 
 class QDMGraphicsView(QGraphicsView):
 
@@ -13,6 +19,9 @@ class QDMGraphicsView(QGraphicsView):
         self.initUI()
 
         self.setScene(self.grScene)
+
+        self.mode = MODE_NOOP
+        self.edge_drag_threshold_sq = 10 ** 2
 
         self.zoomIn_factor = 1.25
         self.zoom_clamp = True
@@ -37,6 +46,7 @@ class QDMGraphicsView(QGraphicsView):
     ############################ 鼠标点击事件 ##################################
     ###########################################################################
 
+    #! event
     def mousePressEvent(self, event: QMouseEvent) -> None:
         if event.button() == Qt.MouseButton.MiddleButton:
             self.middleMouseButtonPressHandler(event) # 按下中键移动画布
@@ -56,7 +66,11 @@ class QDMGraphicsView(QGraphicsView):
             self.rightMouseButtonReleaseHandler(event)
         else:
             super().mouseReleaseEvent(event)
+    
+    def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:
+        return
 
+    #! middle mouse button handlers
     def middleMouseButtonPressHandler(self, event: QMouseEvent):
         # type()：返回事件类型
         # button()：返回鼠标事件所涉及的按钮
@@ -76,17 +90,63 @@ class QDMGraphicsView(QGraphicsView):
         super().mouseReleaseEvent(fakeEvent)
         self.setDragMode(QGraphicsView.DragMode.NoDrag)
 
+    #! left mouse button handlers
     def leftMouseButtonPressHandler(self, event: QMouseEvent):
-        return super().mousePressEvent(event)
-
-    def rightMouseButtonPressHandler(self, event: QMouseEvent):
-        return super().mousePressEvent(event)
-
+        item = self.getItemAtClicked(event)
+        self.last_lmb_press_pos = self.mapToScene(event.pos())
+        
+        # logic
+        if type(item) is QDMGraphicsSocket:
+            if self.mode == MODE_NOOP:
+                self.mode = MODE_DRAG_EDGE
+                self.edgeDragStart()
+                return
+        
+        if self.mode == MODE_DRAG_EDGE:
+            retFlag = self.edgeDragEnd(item)
+            if retFlag:  return
+        
+        super().mousePressEvent(event)
+            
     def leftMouseButtonReleaseHandler(self, event: QMouseEvent):
-        return super().mouseReleaseEvent(event)
+        item = self.getItemAtClicked(event)
+        
+        # logic
+        if self.mode == MODE_DRAG_EDGE:
+            if self.distBetweenClickAndReleaseIsOff(event):
+                retFlag = self.edgeDragEnd(item)
+                if retFlag:  return
+
+        super().mouseReleaseEvent(event)
+    
+    #! right mouse button handlers
+    def rightMouseButtonPressHandler(self, event: QMouseEvent):
+        super().mousePressEvent(event)
 
     def rightMouseButtonReleaseHandler(self, event: QMouseEvent):
-        return super().mouseReleaseEvent(event)
+        super().mouseReleaseEvent(event)
+    
+    #! logic functions
+    def distBetweenClickAndReleaseIsOff(self, event):
+        new_lmb_press_pos = self.mapToScene(event.pos())
+        mouse_move_dist = new_lmb_press_pos - self.last_lmb_press_pos
+        CONSOLE.log('Distance: ', mouse_move_dist)
+        return mouse_move_dist.x()**2 + mouse_move_dist.y()**2 > self.edge_drag_threshold_sq
+    
+    def edgeDragStart(self):
+        CONSOLE.log('Start dragging edge')
+        CONSOLE.log('  assign start socket')
+
+    def edgeDragEnd(self, item):
+        """return True if want to skip event propagate"""
+        self.mode = MODE_NOOP
+        CONSOLE.log('End dragging edge')
+
+        if type(item) is QDMGraphicsSocket:
+            CONSOLE.log('  assign end sockets')
+            return True
+        
+        return False
     
     ###########################################################################
     ############################## 滚轮事件 ####################################
@@ -111,3 +171,7 @@ class QDMGraphicsView(QGraphicsView):
         # 画布缩放
         if not clamp or not self.zoom_clamp:
             self.scale(zoom_factor, zoom_factor)
+    
+    def getItemAtClicked(self, event):
+        pos = event.pos()
+        return self.itemAt(pos)

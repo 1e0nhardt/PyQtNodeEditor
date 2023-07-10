@@ -9,3 +9,11 @@ QGraphicsProxyWidget 充当 QWidget 和 QGraphicsItem 之间的桥梁，使得�
 
 ## 贝塞尔曲线的选择范围
 存在起点和终点相同的直线和贝塞尔曲线时，选择不到直线。
+
+## ep11
+ES: End Socket
+
+- 左键点击和拖动ES
+- 左键点击和释放 
+- 左键点击和释放到ES 
+- ctrl+左键拖动边到已存在的ES时，替换

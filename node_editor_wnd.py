@@ -4,14 +4,13 @@ from PyQt6 import QtCore
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
-from rich.console import Console
 
 from node_graphics_view import QDMGraphicsView
 from node_node import Node
 from node_scene import Scene
 from node_edge import *
 
-CONSOLE = Console(width=120)
+from utils import CONSOLE
 
 
 class NodeEditorWnd(QWidget):
