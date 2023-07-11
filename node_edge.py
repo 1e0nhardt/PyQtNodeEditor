@@ -18,6 +18,7 @@ class Edge(object):
         self.grEdge = QDMGraphicsEdgeBezier(self) if edge_type==EDGE_TYPE_BEZIER else QDMGraphicsEdgeDirect(self)
         self.updatePosition()
         self.scene.grScene.addItem(self.grEdge)
+        self.scene.addEdge(self)
 
     def updatePosition(self):
         start_point = self.start_socket.getSocketPosition() # socket相对node的位置
@@ -30,6 +31,10 @@ class Edge(object):
             dest_point[0] += self.end_socket.node.grNode.pos().x()
             dest_point[1] += self.end_socket.node.grNode.pos().y()
             self.grEdge.setDestPoint(*dest_point)
+        else:
+            self.grEdge.setDestPoint(*start_point)
+        
+        self.grEdge.update()
     
     def remove_from_sockets(self):
         if self.start_socket is not None:
@@ -44,3 +49,6 @@ class Edge(object):
         self.scene.grScene.removeItem(self.grEdge)
         self.grEdge = None
         self.scene.removeEdge(self)
+    
+    def __str__(self):
+        return f'<Edge {hex(id(self))}>'

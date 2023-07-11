@@ -49,4 +49,7 @@ class Node(object):
         for socket in self.inputs + self.outputs:
             if socket.hasEdge():
                 socket.edge.updatePosition()
+    
+    def __str__(self):
+        return f'<Node {hex(id(self))}>'
         

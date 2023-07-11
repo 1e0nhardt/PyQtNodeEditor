@@ -4,10 +4,6 @@
 [Pavel Křupala的Youtube视频教程](https://www.youtube.com/watch?v=xbTLhMJARrk&list=PLZSNHzwDCOggHLThIbCxUhWTgrKVemZkz)
 
 ## Note
-## QGraphicsProxyWidget
-QGraphicsProxyWidget 是 PyQt 中的一个类，用于将 QWidget 或其子类包装为 QGraphicsItem，以便在图形场景中进行显示和交互。  
-QGraphicsProxyWidget 充当 QWidget 和 QGraphicsItem 之间的桥梁，使得可以在图形场景中使用 QWidget 的功能，并可以通过 QGraphicsItem 的属性和方法对其进行控制。
-
 ## 贝塞尔曲线的选择范围
 存在起点和终点相同的直线和贝塞尔曲线时，选择不到直线。
 
@@ -46,11 +42,46 @@ QGraphicsProxyWidget 充当 QWidget 和 QGraphicsItem 之间的桥梁，使得�
         - 于是实现了中键拖动
 
 ### ep4
+- 用Scene类管理QDMGraphicsScene，QDMGraphicsScene也保存Scene的引用
+- Scene类保存场景中的内容
+- QDMGraphicsScene负责背景绘制
 
+### ep5
+- Node类保存节点数据
+- QDMGraphicsNode负责外观和交互
+    - 重写QGraphicsItem的paint方法设置外观
+- QPainterPath
+    - addRoundedRect 绘制圆角矩形
+    - addRect 绘制矩形
+    - 上半圆角，下半直角的矩形：圆角矩形+两个矩形盖住两个角
+
+### ep6
+- QGraphicsProxyWidget
+    - QGraphicsProxyWidget 是 PyQt 中的一个类，用于将 QWidget 或其子类包装为 QGraphicsItem，以便在图形场景中进行显示和交互。  
+    - QGraphicsProxyWidget 充当 QWidget 和 QGraphicsItem 之间的桥梁，使得可以在图形场景中使用 QWidget 的功能，并可以通过 QGraphicsItem 的属性和方法对其进行控制。
+- 设置全局样式: QApplication.instance().setStyleSheet(str(styleSheet, encoding='utf-8'))
+
+### ep7
+- Socket
+- QDMGraphicsSocket
+- 计算位置画点
+
+### ep8
+- Edge
+- QDMGraphicsEdge继承QGraphicsPathItem
+    - QGraphicsPathItem有一个path()方法返回定义的 path。paint方法中只要把这个path画出来即可。
+    - 直线 path.lineTo(x, y)
+    - Bezier曲线 path.cubicTo(c1x, c1y, c2x, c2y, x, y)
+
+### ep9
+- Edge和Socket交互，获取起点和终点位置
+
+### ep10
+- 在QDMGraphicsNode的mouseMoveEvent中更新关联的Edge的位置
+- 将socket颜色和类型挂钩
 
 ### ep11
-ES: End Socket
-
+- 确定连接Edge的逻辑
 - 左键点击和拖动ES
 - 左键点击和释放 
 - 左键点击和释放到ES 

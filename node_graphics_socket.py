@@ -4,13 +4,14 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtWidgets import QGraphicsSceneMouseEvent
-from utils import CONSOLE
+from utils import logger
 
 
 class QDMGraphicsSocket(QGraphicsItem):
 
-    def __init__(self, parent=None, socket_type=1):
-        super().__init__(parent)
+    def __init__(self, socket, socket_type=1):
+        self.socket = socket
+        super().__init__(socket.node.grNode)
 
         self.radius = 6
         self.outline_width = 1.0

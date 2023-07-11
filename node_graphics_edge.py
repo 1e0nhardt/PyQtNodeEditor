@@ -21,6 +21,9 @@ class QDMGraphicsEdge(QGraphicsPathItem):
         self._pen_defalut.setWidthF(1.5)
         self._pen_selected = QPen(self._color_selected)
         self._pen_selected.setWidthF(1.5)
+        self._pen_dragging = QPen(self._color_defalut)
+        self._pen_dragging.setWidthF(1.5)
+        self._pen_dragging.setStyle(Qt.PenStyle.DashDotLine)
 
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
 
@@ -29,7 +32,10 @@ class QDMGraphicsEdge(QGraphicsPathItem):
     def paint(self, painter, option, widget=None) -> None:
         self.updatePath()
 
-        painter.setPen(self._pen_defalut if not self.isSelected() else self._pen_selected)
+        if self.edge.end_socket is None:
+            painter.setPen(self._pen_dragging)
+        else:
+            painter.setPen(self._pen_defalut if not self.isSelected() else self._pen_selected)
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(self.path())
     

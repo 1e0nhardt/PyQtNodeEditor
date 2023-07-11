@@ -2,9 +2,11 @@ from PyQt6 import QtGui
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
+from node_edge import Edge
+from node_graphics_edge import QDMGraphicsEdge
 
 from node_graphics_socket import QDMGraphicsSocket
-from utils import CONSOLE
+from utils import logger
 
 MODE_NOOP = 1
 MODE_DRAG_EDGE = 2
@@ -69,6 +71,13 @@ class QDMGraphicsView(QGraphicsView):
     
     def mouseDoubleClickEvent(self, event: QMouseEvent) -> None:
         return
+    
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        if self.mode == MODE_DRAG_EDGE:
+            pos = self.mapToScene(event.pos())
+            self.drag_edge.grEdge.setDestPoint(pos.x(), pos.y())
+            self.drag_edge.grEdge.update() # 立即重绘
+        super().mouseMoveEvent(event)
 
     #! middle mouse button handlers
     def middleMouseButtonPressHandler(self, event: QMouseEvent):
@@ -99,7 +108,7 @@ class QDMGraphicsView(QGraphicsView):
         if type(item) is QDMGraphicsSocket:
             if self.mode == MODE_NOOP:
                 self.mode = MODE_DRAG_EDGE
-                self.edgeDragStart()
+                self.edgeDragStart(item)
                 return
         
         if self.mode == MODE_DRAG_EDGE:
@@ -122,6 +131,22 @@ class QDMGraphicsView(QGraphicsView):
     #! right mouse button handlers
     def rightMouseButtonPressHandler(self, event: QMouseEvent):
         super().mousePressEvent(event)
+        item = self.getItemAtClicked(event)
+        
+        if isinstance(item, QDMGraphicsEdge):
+            logger.debug(f'RMB DEBUG: {item.edge} connectting sockets {item.edge.start_socket} <---> {item.edge.end_socket}')
+        elif type(item) is QDMGraphicsSocket:
+            logger.debug(f'RMB DEBUG: {item.socket} has {item.socket.edge}')
+        elif item is None:
+            logger.debug(f'SCENE: {self.scene}')
+            logger.debug(f'  NODES:')
+            for node in self.grScene.scene.nodes:
+                logger.debug(f'    {node}')
+            logger.debug(f'  EDGES:')
+            for edge in self.grScene.scene.edges:
+                logger.debug(f'    {edge}')
+        else:
+            logger.debug(f'RMB DEBUG: {item}')
 
     def rightMouseButtonReleaseHandler(self, event: QMouseEvent):
         super().mouseReleaseEvent(event)
@@ -130,21 +155,34 @@ class QDMGraphicsView(QGraphicsView):
     def distBetweenClickAndReleaseIsOff(self, event):
         new_lmb_press_pos = self.mapToScene(event.pos())
         mouse_move_dist = new_lmb_press_pos - self.last_lmb_press_pos
-        CONSOLE.log('Distance: ', mouse_move_dist)
+        logger.debug(f'Distance: {mouse_move_dist}')
         return mouse_move_dist.x()**2 + mouse_move_dist.y()**2 > self.edge_drag_threshold_sq
     
-    def edgeDragStart(self):
-        CONSOLE.log('Start dragging edge')
-        CONSOLE.log('  assign start socket')
+    def edgeDragStart(self, item):
+        logger.debug('View::edgeDragStart ~ Start dragging edge')
+        logger.debug('View::edgeDragStart ~   assign start socket')
+        self.drag_edge = Edge(self.grScene.scene, item.socket, None)
+        logger.debug(f'View::edgeDragStart ~   drag edge {self.drag_edge}')
 
     def edgeDragEnd(self, item):
         """return True if want to skip event propagate"""
         self.mode = MODE_NOOP
-        CONSOLE.log('End dragging edge')
+        logger.debug('View::edgeDragEnd ~ End dragging edge')
 
         if type(item) is QDMGraphicsSocket:
-            CONSOLE.log('  assign end sockets')
+            logger.debug(f'View::edgeDragEnd ~   assign end sockets {item.socket}')
+            # 连接边
+            self.drag_edge.end_socket = item.socket
+            self.drag_edge.start_socket.setConnectedEdge(self.drag_edge)
+            self.drag_edge.end_socket.setConnectedEdge(self.drag_edge)
+            self.drag_edge.updatePosition() # 连接后，虚线立即变实线
+            logger.debug(f'View::edgeDragEnd ~   connected edge {self.drag_edge} {self.drag_edge.start_socket} <---> {self.drag_edge.end_socket}')
             return True
+
+        logger.debug('View::edgeDragEnd ~   removing edge')
+        self.drag_edge.remove()
+        self.drag_edge = None
+        logger.debug('View::edgeDragEnd ~   edge removed')
         
         return False
     

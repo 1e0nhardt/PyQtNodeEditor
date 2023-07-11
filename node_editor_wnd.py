@@ -10,7 +10,7 @@ from node_node import Node
 from node_scene import Scene
 from node_edge import *
 
-from utils import CONSOLE
+from utils import logger
 
 
 class NodeEditorWnd(QWidget):
@@ -55,9 +55,8 @@ class NodeEditorWnd(QWidget):
         edge1 = Edge(self.scene, node1.outputs[0], node3.inputs[0], edge_type=EDGE_TYPE_DIRCET)
         edge2 = Edge(self.scene, node3.outputs[0], node2.inputs[1], edge_type=EDGE_TYPE_BEZIER)
 
-    
     def loadStyleSheet(self, filename):
-        CONSOLE.print(f'Loading StyleSheet: {filename}', style='blue')
+        logger.info(f'[blue]Loading StyleSheet: {filename}[/]')
         file = QFile(filename)
         file.open(QFile.OpenModeFlag.ReadOnly | QFile.OpenModeFlag.Text)
         styleSheet = file.readAll()
