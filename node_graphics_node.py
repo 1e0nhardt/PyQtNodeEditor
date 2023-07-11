@@ -43,6 +43,7 @@ class QDMGraphicsNode(QGraphicsItem):
     
     def initTitle(self):
         self.title_item = QGraphicsTextItem(self)
+        self.title_item.node = self.node
         self.title_item.setDefaultTextColor(self._title_color)
         self.title_item.setFont(self._title_font)
         self.title_item.setPos(self.title_padding, 0)
@@ -98,4 +99,8 @@ class QDMGraphicsNode(QGraphicsItem):
     
     def mouseMoveEvent(self, event: QGraphicsSceneMouseEvent) -> None:
         super().mouseMoveEvent(event)
-        self.node.updateConnectedEdges()
+        
+        # update all edges connected with selected node
+        for node in self.scene().scene.nodes:
+            if node.grNode.isSelected():
+                node.updateConnectedEdges()

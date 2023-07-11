@@ -105,6 +105,19 @@ class QDMGraphicsView(QGraphicsView):
         self.last_lmb_press_pos = self.mapToScene(event.pos())
         
         # logic
+        # Shift+Select
+        if hasattr(item, 'node'):
+            if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+                logger.debug(f'Shift+LMB Press on {item.node}')
+                event.ignore()
+                # 模拟Ctrl+LMB点击事件
+                fake_event = QMouseEvent(QEvent.Type.MouseButtonPress, event.position(), event.scenePosition(), 
+                            Qt.MouseButton.LeftButton, event.buttons() | Qt.MouseButton.LeftButton,
+                            event.modifiers() | Qt.KeyboardModifier.ControlModifier)
+                super().mousePressEvent(fake_event)
+                return
+
+        # Dragging Edge        
         if type(item) is QDMGraphicsSocket:
             if self.mode == MODE_NOOP:
                 self.mode = MODE_DRAG_EDGE
@@ -121,6 +134,19 @@ class QDMGraphicsView(QGraphicsView):
         item = self.getItemAtClicked(event)
         
         # logic
+        # Shift+Select
+        if hasattr(item, 'node'):
+            if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+                logger.debug(f'Shift+LMB Release on {item.node}')
+                event.ignore()
+                # 模拟Ctrl+LMB释放事件
+                fake_event = QMouseEvent(event.type(), event.position(), event.scenePosition(), 
+                            Qt.MouseButton.LeftButton, Qt.MouseButton.NoButton,
+                            event.modifiers() | Qt.KeyboardModifier.ControlModifier)
+                super().mouseReleaseEvent(fake_event)
+                return
+
+        # End Dragging Edge    
         if self.mode == MODE_DRAG_EDGE:
             if self.distBetweenClickAndReleaseIsOff(event):
                 retFlag = self.edgeDragEnd(item)
