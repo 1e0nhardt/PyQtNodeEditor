@@ -1,6 +1,5 @@
 import logging
 from rich.logging import RichHandler
-import inspect
 
 FORMAT = "%(message)s"
 logging.basicConfig(

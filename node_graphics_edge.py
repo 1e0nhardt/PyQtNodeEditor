@@ -1,10 +1,16 @@
+import math
 import typing
+
 from PyQt6 import QtGui
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtWidgets import QStyleOptionGraphicsItem, QWidget
 
+from node_socket import *
+
+
+EDGE_CP_ROUNDNESS = 50.0
 
 class QDMGraphicsEdge(QGraphicsPathItem):
 
@@ -64,8 +70,22 @@ class QDMGraphicsEdgeBezier(QDMGraphicsEdge):
         d = self.pointDest
         
         dist = (d[0] - s[0]) * 0.5
-        if dist < 0: dist *= -1
+        
+        cpx_s = dist
+        cpx_d = -dist
+        cpy_s = 0
+        cpy_d = 0
+
+        sspos = self.edge.start_socket.position
+
+        if (s[0] > d[0] and sspos in (TOP_RIGHT, BOTTOM_RIGHT)) or (s[0] < d[0] and sspos in (TOP_LEFT, BOTTOM_LEFT)):
+            cpx_d *= -1
+            cpx_s *= -1
+
+            cpy_d = ((s[1]-d[1]) / math.fabs(s[1]-d[1]) if (s[1]-d[1]) != 0 else 1e-5) * EDGE_CP_ROUNDNESS
+
+            cpy_s = ((d[1]-s[1]) / math.fabs(d[1]-s[1]) if (d[1]-s[1]) != 0 else 1e-5)* EDGE_CP_ROUNDNESS          
         
         path = QPainterPath(QPointF(s[0], s[1]))
-        path.cubicTo(s[0] + dist, s[1], d[0]-dist, d[1], d[0], d[1])
+        path.cubicTo(s[0] + cpx_s, s[1] + cpy_s, d[0]+cpx_d, d[1]+cpy_d, d[0], d[1])
         self.setPath(path)

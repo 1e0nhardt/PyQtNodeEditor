@@ -159,30 +159,43 @@ class QDMGraphicsView(QGraphicsView):
         return mouse_move_dist.x()**2 + mouse_move_dist.y()**2 > self.edge_drag_threshold_sq
     
     def edgeDragStart(self, item):
-        logger.debug('View::edgeDragStart ~ Start dragging edge')
-        logger.debug('View::edgeDragStart ~   assign start socket')
+        logger.debug('[dark_orange]View::edgeDragStart[/] $ Start dragging edge')
+        logger.debug('[dark_orange]View::edgeDragStart[/] $   get previouse edge')
+        self.previous_edge = item.socket.edge # 起始socket是否已经有边
+        self.last_start_socket = item.socket
+        logger.debug('[dark_orange]View::edgeDragStart[/] $   assign start socket')
         self.drag_edge = Edge(self.grScene.scene, item.socket, None)
-        logger.debug(f'View::edgeDragStart ~   drag edge {self.drag_edge}')
+        logger.debug(f'[dark_orange]View::edgeDragStart[/] $   drag edge {self.drag_edge}')
 
     def edgeDragEnd(self, item):
         """return True if want to skip event propagate"""
         self.mode = MODE_NOOP
-        logger.debug('View::edgeDragEnd ~ End dragging edge')
+        logger.debug('[dark_orange]View::edgeDragEnd[/] $ End dragging edge')
 
         if type(item) is QDMGraphicsSocket:
-            logger.debug(f'View::edgeDragEnd ~   assign end sockets {item.socket}')
-            # 连接边
+            logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   assign end sockets {item.socket}')
+            #TODO 目前一个socket只能连接一个edge
+            # 连接边 
+            if self.previous_edge is not None: # 令一个起点只有一个边，之前的边会删除
+                logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   remove previous edge {self.previous_edge} {self.previous_edge.start_socket} <---> {self.previous_edge.end_socket}')
+                self.previous_edge.remove()
+                self.previous_edge = None
+            
+            # 从右向左连边
+            if item.socket.hasEdge():
+                item.socket.edge.remove()
+
             self.drag_edge.end_socket = item.socket
             self.drag_edge.start_socket.setConnectedEdge(self.drag_edge)
             self.drag_edge.end_socket.setConnectedEdge(self.drag_edge)
             self.drag_edge.updatePosition() # 连接后，虚线立即变实线
-            logger.debug(f'View::edgeDragEnd ~   connected edge {self.drag_edge} {self.drag_edge.start_socket} <---> {self.drag_edge.end_socket}')
+            logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   connected edge {self.drag_edge} {self.drag_edge.start_socket} <---> {self.drag_edge.end_socket}')
             return True
 
-        logger.debug('View::edgeDragEnd ~   removing edge')
+        logger.debug('[dark_orange]View::edgeDragEnd[/] $   removing edge')
         self.drag_edge.remove()
         self.drag_edge = None
-        logger.debug('View::edgeDragEnd ~   edge removed')
+        logger.debug('[dark_orange]View::edgeDragEnd[/] $   edge removed')
         
         return False
     
