@@ -109,7 +109,7 @@ class QDMGraphicsView(QGraphicsView):
             self.selecting = True
             self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
         
-        logger.debug(f'Shift+LMB Press on {item}')
+        logger.debug(f'LMB Press on {item}')
 
         # logic
         # Shift+Select
@@ -142,10 +142,10 @@ class QDMGraphicsView(QGraphicsView):
         self.selecting = False
         self.setDragMode(QGraphicsView.DragMode.NoDrag)
 
-        logger.debug(f'Shift+LMB Release on {item}')
+        # logger.debug(f'LMB Release on {item}')
 
         # logic
-        # Shift+Select
+        # Shift+Select on 'Node', Edge, background
         if hasattr(item, 'node') or isinstance(item, QDMGraphicsEdge) or item is None:
             if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
                 event.ignore()
@@ -158,7 +158,9 @@ class QDMGraphicsView(QGraphicsView):
 
         # End Dragging Edge    
         if self.mode == MODE_DRAG_EDGE:
+            logger.debug('[dark_orange]View::LMBRelease[/] before edgeDragEnd')
             if self.distBetweenClickAndReleaseIsOff(event):
+                logger.debug('[dark_orange]View::LMBRelease[/] dist not off')
                 retFlag = self.edgeDragEnd(item)
                 if retFlag:  return
 
@@ -209,28 +211,35 @@ class QDMGraphicsView(QGraphicsView):
         logger.debug('[dark_orange]View::edgeDragEnd[/] $ End dragging edge')
 
         if type(item) is QDMGraphicsSocket:
-            logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   assign end sockets {item.socket}')
-            #TODO 目前一个socket只能连接一个edge
-            # 连接边 
-            if self.previous_edge is not None: # 令一个起点只有一个边，之前的边会删除
-                logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   remove previous edge {self.previous_edge} {self.previous_edge.start_socket} <---> {self.previous_edge.end_socket}')
-                self.previous_edge.remove()
-                self.previous_edge = None
-            
-            # 从右向左连边
-            if item.socket.hasEdge():
-                item.socket.edge.remove()
+            if item.socket != self.last_start_socket: # 在同一个socket上点击并释放时，无事发生
+                logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   assign end sockets {item.socket}')
+                #TODO 目前一个socket只能连接一个edge
+                # 连接边 
+                if self.previous_edge is not None: # 令一个起点只有一个边，之前的边会删除
+                    logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   remove previous edge {self.previous_edge} {self.previous_edge.start_socket} <---> {self.previous_edge.end_socket}')
+                    self.previous_edge.remove()
+                    self.previous_edge = None
+                
+                # 从右向左连边
+                if item.socket.hasEdge():
+                    item.socket.edge.remove()
 
-            self.drag_edge.end_socket = item.socket
-            self.drag_edge.start_socket.setConnectedEdge(self.drag_edge)
-            self.drag_edge.end_socket.setConnectedEdge(self.drag_edge)
-            self.drag_edge.updatePosition() # 连接后，虚线立即变实线
-            logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   connected edge {self.drag_edge} {self.drag_edge.start_socket} <---> {self.drag_edge.end_socket}')
-            return True
+                self.drag_edge.end_socket = item.socket
+                self.drag_edge.start_socket.setConnectedEdge(self.drag_edge)
+                self.drag_edge.end_socket.setConnectedEdge(self.drag_edge)
+                self.drag_edge.updatePosition() # 连接后，虚线立即变实线
+                logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   connected edge {self.drag_edge} {self.drag_edge.start_socket} <---> {self.drag_edge.end_socket}')
+                return True
 
-        logger.debug('[dark_orange]View::edgeDragEnd[/] $   removing edge')
+        # 删除创建的边
+        logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   removing edge {self.drag_edge}')
         self.drag_edge.remove()
         self.drag_edge = None
+        # 点击一个socket开始拖动后，又打算取消，在该socket上结束。
+        # 此时会从dragging edge调用该方法
+        # 如果该socket原来已经连接了一个边，则socket会丢失对边的引用，导致拖动该节点时对应边不更新
+        # 但是开始drag时引用已经变了，所以需要手动重新连接
+        item.socket.setConnectedEdge(self.previous_edge)
         logger.debug('[dark_orange]View::edgeDragEnd[/] $   edge removed')
         
         return False
