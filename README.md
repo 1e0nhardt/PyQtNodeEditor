@@ -96,7 +96,12 @@
 - 优化了贝塞尔曲线
 
 ### ep13
-- FixBug: 松开中键时，dragMode由NoDrag换为默认的RubberBandDrag。
+- FixBug: 
+    - 松开中键时，dragMode由NoDrag换为默认的RubberBandDrag。(x)
+    - 在场景中按下左键时，将dragMode设为RubberBandDrag，松开时设回NoDrag
+    - 伪造QMouseEvent时, 第三个参数为全局位置，用globalPosition()而不是scenePosition().
+        - scenePosition()和position()返回值一样
+        - 要获取在scene中的位置还是需要用mapToScene
 - 添加qss，使框选区域背景色为白色
 - 将Ctrl+左键的多选功能绑定到Shift+左键
 - 节点移动时更新当前节点相关边，更改为更新所有选中节点的相关边

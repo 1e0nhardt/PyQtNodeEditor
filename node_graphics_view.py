@@ -85,16 +85,17 @@ class QDMGraphicsView(QGraphicsView):
         # button()：返回鼠标事件所涉及的按钮
         # buttons()：返回当前按下的鼠标按钮的状态
         # modifiers()：返回与鼠标事件同时按下的修饰键
-        releaseEvent = QMouseEvent(QEvent.Type.MouseButtonRelease, event.position(), event.scenePosition(),
+        logger.debug(f'scene pos: {event.scenePosition()}, rel pos: {event.position()}, scene pos: {self.mapToScene(event.scenePosition().toPoint())}')
+        releaseEvent = QMouseEvent(QEvent.Type.MouseButtonRelease, event.position(), event.globalPosition(),
                                     Qt.MouseButton.LeftButton, Qt.MouseButton.NoButton, event.modifiers())
         super().mouseReleaseEvent(releaseEvent)
         self.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
-        fakeEvent = QMouseEvent(event.type(), event.position(), event.scenePosition(),
+        fakeEvent = QMouseEvent(event.type(), event.position(), event.globalPosition(),
                                     Qt.MouseButton.LeftButton, event.buttons() | Qt.MouseButton.LeftButton, event.modifiers())
         super().mousePressEvent(fakeEvent)
     
     def middleMouseButtonReleaseHandler(self, event: QMouseEvent):
-        fakeEvent = QMouseEvent(event.type(), event.position(), event.scenePosition(),
+        fakeEvent = QMouseEvent(event.type(), event.position(), event.globalPosition(),
                                     Qt.MouseButton.LeftButton, event.buttons() | Qt.MouseButton.LeftButton, event.modifiers())
         super().mouseReleaseEvent(fakeEvent)
         self.setDragMode(QGraphicsView.DragMode.NoDrag)
@@ -103,15 +104,20 @@ class QDMGraphicsView(QGraphicsView):
     def leftMouseButtonPressHandler(self, event: QMouseEvent):
         item = self.getItemAtClicked(event)
         self.last_lmb_press_pos = self.mapToScene(event.pos())
+
+        if item is None:
+            self.selecting = True
+            self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
         
+        logger.debug(f'Shift+LMB Press on {item}')
+
         # logic
         # Shift+Select
-        if hasattr(item, 'node'):
+        if hasattr(item, 'node') or isinstance(item, QDMGraphicsEdge) or item is None:
             if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
-                logger.debug(f'Shift+LMB Press on {item.node}')
                 event.ignore()
                 # 模拟Ctrl+LMB点击事件
-                fake_event = QMouseEvent(QEvent.Type.MouseButtonPress, event.position(), event.scenePosition(), 
+                fake_event = QMouseEvent(QEvent.Type.MouseButtonPress, event.position(), event.globalPosition(), 
                             Qt.MouseButton.LeftButton, event.buttons() | Qt.MouseButton.LeftButton,
                             event.modifiers() | Qt.KeyboardModifier.ControlModifier)
                 super().mousePressEvent(fake_event)
@@ -132,15 +138,19 @@ class QDMGraphicsView(QGraphicsView):
             
     def leftMouseButtonReleaseHandler(self, event: QMouseEvent):
         item = self.getItemAtClicked(event)
-        
+
+        self.selecting = False
+        self.setDragMode(QGraphicsView.DragMode.NoDrag)
+
+        logger.debug(f'Shift+LMB Release on {item}')
+
         # logic
         # Shift+Select
-        if hasattr(item, 'node'):
+        if hasattr(item, 'node') or isinstance(item, QDMGraphicsEdge) or item is None:
             if event.modifiers() & Qt.KeyboardModifier.ShiftModifier:
-                logger.debug(f'Shift+LMB Release on {item.node}')
                 event.ignore()
                 # 模拟Ctrl+LMB释放事件
-                fake_event = QMouseEvent(event.type(), event.position(), event.scenePosition(), 
+                fake_event = QMouseEvent(event.type(), event.position(), event.globalPosition(), 
                             Qt.MouseButton.LeftButton, Qt.MouseButton.NoButton,
                             event.modifiers() | Qt.KeyboardModifier.ControlModifier)
                 super().mouseReleaseEvent(fake_event)
