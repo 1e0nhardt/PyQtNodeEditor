@@ -23,6 +23,7 @@ class QDMGraphicsView(QGraphicsView):
         self.setScene(self.grScene)
 
         self.mode = MODE_NOOP
+        self.editing_flag = False
         self.edge_drag_threshold_sq = 10 ** 2
 
         self.zoomIn_factor = 1.25
@@ -267,6 +268,27 @@ class QDMGraphicsView(QGraphicsView):
         # 画布缩放
         if not clamp or not self.zoom_clamp:
             self.scale(zoom_factor, zoom_factor)
+    
+    ###########################################################################
+    ############################## 键盘事件 ####################################
+    ###########################################################################
+
+    def keyPressEvent(self, event: QKeyEvent) -> None:
+        # logger.debug('QDMGraphicsView Key Press')
+        if event.key() == Qt.Key.Key_Delete:
+            if self.editing_flag: # 编辑节点时，保持delete键的正常功能。但是，可以在focus时取消节点的选择啊。
+                super().keyPressEvent(event)
+            else:
+                self.deleteSelectedItems()
+        else:
+            super().keyPressEvent(event)
+
+    def deleteSelectedItems(self):
+        for item in self.grScene.selectedItems():
+            if isinstance(item, QDMGraphicsEdge):
+                item.edge.remove()
+            elif hasattr(item, 'node'):
+                item.node.remove()
     
     def getItemAtClicked(self, event):
         pos = event.pos()

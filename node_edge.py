@@ -1,4 +1,5 @@
 from node_graphics_edge import QDMGraphicsEdgeDirect, QDMGraphicsEdgeBezier
+from utils import logger
 
 EDGE_TYPE_DIRCET=1
 EDGE_TYPE_BEZIER=2
@@ -45,10 +46,15 @@ class Edge(object):
         self.end_socekt = None
 
     def remove(self):
+        logger.debug(f'$ Removing edge {self}')
+        logger.debug(f'$  remove edge from all socket')
         self.remove_from_sockets()
+        logger.debug(f'$  remove grEdge')
         self.scene.grScene.removeItem(self.grEdge)
         self.grEdge = None
+        logger.debug(f'$  remove edge from scene')
         self.scene.removeEdge(self)
+        logger.debug(f'$  all done!')
     
     def __str__(self):
         return f'<Edge {hex(id(self))}>'

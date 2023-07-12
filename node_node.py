@@ -2,6 +2,7 @@ from node_scene import Scene
 from node_graphics_node import QDMGraphicsNode
 from node_content_widget import QDMNodeContentWidget
 from node_socket import *
+from utils import logger
 
 class Node(object):
 
@@ -9,7 +10,7 @@ class Node(object):
         self.scene = scene
         self.title = title
 
-        self.content = QDMNodeContentWidget()
+        self.content = QDMNodeContentWidget(self)
         self.grNode = QDMGraphicsNode(self)
 
         self.scene.addNode(self)
@@ -49,6 +50,20 @@ class Node(object):
         for socket in self.inputs + self.outputs:
             if socket.hasEdge():
                 socket.edge.updatePosition()
+    
+    def remove(self):
+        logger.debug(f'$ Removing node {self}')
+        logger.debug(f'$  remove all edges')
+        for socket in self.inputs + self.outputs:
+            if socket.hasEdge():
+                logger.debug(f'$    remove edge {socket.edge}')
+                socket.edge.remove()
+        logger.debug(f'$  remove grNode')
+        self.scene.grScene.removeItem(self.grNode)
+        self.grNode = None
+        logger.debug(f'$  remove node from scene')
+        self.scene.removeNode(self)
+        logger.debug(f'$  all done!')
     
     def __str__(self):
         return f'<Node {hex(id(self))}>'
