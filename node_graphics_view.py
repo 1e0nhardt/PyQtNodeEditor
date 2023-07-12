@@ -6,10 +6,12 @@ from node_edge import Edge
 from node_graphics_edge import QDMGraphicsEdge
 
 from node_graphics_socket import QDMGraphicsSocket
+from node_graphics_cutline import QDMCutline
 from utils import logger
 
 MODE_NOOP = 1
-MODE_DRAG_EDGE = 2
+MODE_EDGE_DRAG = 2
+MODE_EDGE_CUT = 3
 
 
 class QDMGraphicsView(QGraphicsView):
@@ -31,6 +33,10 @@ class QDMGraphicsView(QGraphicsView):
         self.zoom = 10
         self.zoom_step = 1
         self.zoom_range = [0, 10]
+
+        # cutline
+        self.cutline = QDMCutline()
+        self.grScene.addItem(self.cutline)
     
     def initUI(self):
         self.setRenderHints(QPainter.RenderHint.Antialiasing | QPainter.RenderHint.TextAntialiasing | QPainter.RenderHint.SmoothPixmapTransform)
@@ -74,10 +80,15 @@ class QDMGraphicsView(QGraphicsView):
         return
     
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
-        if self.mode == MODE_DRAG_EDGE:
-            pos = self.mapToScene(event.pos())
+        pos = self.mapToScene(event.pos())
+        if self.mode == MODE_EDGE_DRAG:
             self.drag_edge.grEdge.setDestPoint(pos.x(), pos.y())
             self.drag_edge.grEdge.update() # 立即重绘
+
+        if self.mode == MODE_EDGE_CUT:
+            self.cutline.line_points.append(pos)
+            self.cutline.update()
+
         super().mouseMoveEvent(event)
 
     #! middle mouse button handlers
@@ -107,8 +118,16 @@ class QDMGraphicsView(QGraphicsView):
         self.last_lmb_press_pos = self.mapToScene(event.pos())
 
         if item is None:
-            self.selecting = True
-            self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
+            if event.modifiers() & Qt.KeyboardModifier.ControlModifier:
+                self.mode = MODE_EDGE_CUT
+                fake_event = QMouseEvent(QMouseEvent.Type.MouseButtonRelease, event.position(), event.globalPosition(),
+                                    Qt.MouseButton.LeftButton, Qt.MouseButton.NoButton, event.modifiers())
+                super().mouseReleaseEvent(fake_event)
+                QApplication.setOverrideCursor(Qt.CursorShape.CrossCursor)
+                return
+            else:
+                self.selecting = True
+                self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
         
         logger.debug(f'LMB Press on {item}')
 
@@ -127,11 +146,11 @@ class QDMGraphicsView(QGraphicsView):
         # Dragging Edge        
         if type(item) is QDMGraphicsSocket:
             if self.mode == MODE_NOOP:
-                self.mode = MODE_DRAG_EDGE
+                self.mode = MODE_EDGE_DRAG
                 self.edgeDragStart(item)
                 return
         
-        if self.mode == MODE_DRAG_EDGE:
+        if self.mode == MODE_EDGE_DRAG:
             retFlag = self.edgeDragEnd(item)
             if retFlag:  return
         
@@ -158,12 +177,21 @@ class QDMGraphicsView(QGraphicsView):
                 return
 
         # End Dragging Edge    
-        if self.mode == MODE_DRAG_EDGE:
+        if self.mode == MODE_EDGE_DRAG:
             logger.debug('[dark_orange]View::LMBRelease[/] before edgeDragEnd')
             if self.distBetweenClickAndReleaseIsOff(event):
                 logger.debug('[dark_orange]View::LMBRelease[/] dist not off')
                 retFlag = self.edgeDragEnd(item)
                 if retFlag:  return
+            
+        # cutting edge
+        if self.mode == MODE_EDGE_CUT:
+            self.cutIntersectingEdge()
+            self.cutline.line_points = []
+            self.cutline.update()
+            self.mode = MODE_NOOP
+            QApplication.setOverrideCursor(Qt.CursorShape.ArrowCursor)
+            return
 
         super().mouseReleaseEvent(event)
     
@@ -244,6 +272,14 @@ class QDMGraphicsView(QGraphicsView):
         logger.debug('[dark_orange]View::edgeDragEnd[/] $   edge removed')
         
         return False
+    
+    def cutIntersectingEdge(self):
+        for i in range(len(self.cutline.line_points) - 1):
+            p1 = self.cutline.line_points[i]
+            p2 = self.cutline.line_points[i+1]
+            for edge in self.grScene.scene.edges:
+                if edge.grEdge.intersectsWith(p1, p2):
+                    edge.remove()
     
     ###########################################################################
     ############################## 滚轮事件 ####################################

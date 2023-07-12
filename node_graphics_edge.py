@@ -36,7 +36,7 @@ class QDMGraphicsEdge(QGraphicsPathItem):
         self.setZValue(-1)
 
     def paint(self, painter, option, widget=None) -> None:
-        self.updatePath()
+        self.calcPath()
 
         if self.edge.end_socket is None:
             painter.setPen(self._pen_dragging)
@@ -45,8 +45,14 @@ class QDMGraphicsEdge(QGraphicsPathItem):
         painter.setBrush(Qt.BrushStyle.NoBrush)
         painter.drawPath(self.path())
     
-    def updatePath(self):
+    def calcPath(self) -> QPainterPath:
         raise NotImplemented('This method has to be implemented in a child class')
+
+    def intersectsWith(self, p1: QPointF, p2: QPointF):
+        cut_path = QPainterPath(p1)
+        cut_path.lineTo(p2)
+        path = self.calcPath()
+        return cut_path.intersects(path)
     
     def setStartPoint(self, x, y):
         self.pointStart = [x, y]
@@ -57,15 +63,16 @@ class QDMGraphicsEdge(QGraphicsPathItem):
 
 class QDMGraphicsEdgeDirect(QDMGraphicsEdge):
 
-    def updatePath(self):
+    def calcPath(self):
         path = QPainterPath(QPointF(self.pointStart[0], self.pointStart[1]))
         path.lineTo(self.pointDest[0], self.pointDest[1])
         self.setPath(path)
+        return path
 
 
 class QDMGraphicsEdgeBezier(QDMGraphicsEdge):
 
-    def updatePath(self):
+    def calcPath(self):
         s = self.pointStart
         d = self.pointDest
         
@@ -89,3 +96,4 @@ class QDMGraphicsEdgeBezier(QDMGraphicsEdge):
         path = QPainterPath(QPointF(s[0], s[1]))
         path.cubicTo(s[0] + cpx_s, s[1] + cpy_s, d[0]+cpx_d, d[1]+cpy_d, d[0], d[1])
         self.setPath(path)
+        return path
