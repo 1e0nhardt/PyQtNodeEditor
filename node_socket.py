@@ -39,7 +39,8 @@ class Socket(Serializable):
         })
     
     def deserialize(self, data, hashmap=...):
-        return False
+        hashmap[data['id']] = self
+        return True
     
     def __str__(self):
         return f'<Socket {hex(id(self))}>'

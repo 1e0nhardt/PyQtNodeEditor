@@ -4,7 +4,7 @@ class Serializable(object):
         self.id = id(self)
     
     def serialize(self):
-        raise NotImplemented()
+        raise NotImplementedError()
     
     def deserialize(self, data, hashmap={}):
-        raise NotImplemented()
+        raise NotImplementedError()

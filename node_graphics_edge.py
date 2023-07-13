@@ -46,7 +46,7 @@ class QDMGraphicsEdge(QGraphicsPathItem):
         painter.drawPath(self.path())
     
     def calcPath(self) -> QPainterPath:
-        raise NotImplemented('This method has to be implemented in a child class')
+        raise NotImplementedError('This method has to be implemented in a child class')
 
     def intersectsWith(self, p1: QPointF, p2: QPointF):
         cut_path = QPainterPath(p1)

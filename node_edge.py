@@ -9,21 +9,54 @@ EDGE_TYPE_BEZIER=2
 
 class Edge(Serializable):
 
-    def __init__(self, scene, start_socket, end_socket, edge_type=EDGE_TYPE_BEZIER) -> None:
+    def __init__(self, scene, start_socket=None, end_socket=None, edge_type=EDGE_TYPE_BEZIER) -> None:
         super().__init__()
         self.scene = scene
         self.start_socket = start_socket
         self.end_socket = end_socket
         self.edge_type = edge_type
 
-        self.start_socket.setConnectedEdge(self)
-        if self.end_socket is not None:
-            self.end_socket.setConnectedEdge(self)
-
-        self.grEdge = QDMGraphicsEdgeBezier(self) if edge_type==EDGE_TYPE_BEZIER else QDMGraphicsEdgeDirect(self)
-        self.updatePosition()
-        self.scene.grScene.addItem(self.grEdge)
         self.scene.addEdge(self)
+    
+    @property
+    def start_socket(self):
+        return self._start_socket
+    
+    @start_socket.setter
+    def start_socket(self, value):
+        self._start_socket = value
+        if value is not None:
+            self._start_socket.setConnectedEdge(self)
+
+    @property
+    def end_socket(self):
+        return self._end_socket
+    
+    @end_socket.setter
+    def end_socket(self, value):
+        self._end_socket = value
+        if  value is not None:
+            self._end_socket.setConnectedEdge(self)
+    
+    @property
+    def edge_type(self):
+        return self._edge_type
+    @edge_type.setter
+    def edge_type(self, value):
+        if hasattr(self, 'grEdge') and self.grEdge is not None:
+            self.scene.grScene.removeItem(self.grEdge)
+
+        self._edge_type = value
+
+        if value == EDGE_TYPE_DIRCET:
+            self.grEdge = QDMGraphicsEdgeDirect(self)
+        else:
+            self.grEdge = QDMGraphicsEdgeBezier(self)
+
+        if self.start_socket is not None:
+            self.updatePosition()
+
+        self.scene.grScene.addItem(self.grEdge)
 
     def updatePosition(self):
         start_point = self.start_socket.getSocketPosition() # socket相对node的位置
@@ -69,7 +102,10 @@ class Edge(Serializable):
         })
     
     def deserialize(self, data, hashmap=...):
-        return super().deserialize(data, hashmap)
+        self.start_socket = hashmap[data['start']]
+        self.end_socket = hashmap[data['end']]
+        self.edge_type = data['edge_type']
+        return True
     
     def __str__(self):
         return f'<Edge {hex(id(self))}>'

@@ -1,4 +1,3 @@
-from node_scene import Scene
 from node_graphics_node import QDMGraphicsNode
 from node_content_widget import QDMNodeContentWidget
 from node_socket import *
@@ -8,10 +7,10 @@ from collections import OrderedDict
 
 class Node(Serializable):
 
-    def __init__(self, scene: Scene, title='Undefined Node', inputs=[], outputs=[]) -> None:
+    def __init__(self, scene, title='Undefined Node', inputs=[], outputs=[]) -> None:
         super().__init__()
         self.scene = scene
-        self.title = title
+        self._title = title
 
         self.content = QDMNodeContentWidget(self)
         self.grNode = QDMGraphicsNode(self)
@@ -45,6 +44,14 @@ class Node(Serializable):
     @property
     def pos(self):
         return self.grNode.pos()
+    
+    @property
+    def title(self):
+        return self._title
+    @title.setter
+    def title(self, value):
+        self._title = value
+        self.grNode.title = value
 
     def setPos(self, x, y):
         self.grNode.setPos(x, y)
@@ -82,8 +89,25 @@ class Node(Serializable):
         })
     
     def deserialize(self, data, hashmap=...):
-        return super().deserialize(data, hashmap)
+        hashmap[data['id']] = self
+
+        self.setPos(data['pos_x'], data['pos_y'])
+        self.title = data['title']
+
+        data['inputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000)
+        data['outputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000)
+
+        for socket_data in data['inputs']:
+            socket = Socket(self, socket_data['index'], socket_data['position'], socket_data['socket_type'])
+            socket.deserialize(socket_data, hashmap)
+            self.inputs.append(socket)
+
+        for socket_data in data['outputs']:
+            socket = Socket(self, socket_data['index'], socket_data['position'], socket_data['socket_type'])
+            socket.deserialize(socket_data, hashmap)
+            self.outputs.append(socket)
+
+        return True
     
     def __str__(self):
         return f'<Node {hex(id(self))}>'
-        
