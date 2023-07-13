@@ -3,10 +3,11 @@ from node_edge import Edge
 from node_graphics_scene import QDMGraphicsScene
 from node_node import Node
 from node_serializable import Serializable
+from node_scene_history import SceneHistory
 import json
 from utils import logger
 
-class  Scene(Serializable):
+class Scene(Serializable):
 
     def __init__(self) -> None:
         super().__init__()
@@ -15,6 +16,8 @@ class  Scene(Serializable):
 
         self.scene_width = 64000
         self.scene_height = 64000
+
+        self.history = SceneHistory(self)
 
         self.initUI()
     

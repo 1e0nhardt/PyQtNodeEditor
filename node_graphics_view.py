@@ -316,10 +316,23 @@ class QDMGraphicsView(QGraphicsView):
                 super().keyPressEvent(event)
             else:
                 self.deleteSelectedItems()
-        elif event.key() == Qt.Key.Key_S:
+        elif event.modifiers() & Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_S:
             self.grScene.scene.saveToFile('graph.json')
-        elif event.key() == Qt.Key.Key_L:
+        elif event.modifiers() & Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_L:
             self.grScene.scene.loadFromFile('graph.json')
+        elif event.key() == Qt.Key.Key_1:
+            self.grScene.scene.history.storeHistory("Item A")
+        elif event.key() == Qt.Key.Key_2:
+            self.grScene.scene.history.storeHistory("Item B")
+        elif event.key() == Qt.Key.Key_3:
+            self.grScene.scene.history.storeHistory("Item C")
+        elif event.key() == Qt.Key.Key_4:
+            self.grScene.scene.history.undo()
+        elif event.key() == Qt.Key.Key_5:
+            self.grScene.scene.history.redo()
+        elif event.key() == Qt.Key.Key_H:
+            logger.debug(self.grScene.scene.history.history_stack)
+            logger.debug(self.grScene.scene.history.history_current_step)
         else:
             super().keyPressEvent(event)
 
