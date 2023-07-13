@@ -1,3 +1,4 @@
+from node_graphics_edge import QDMGraphicsEdge
 from utils import logger
 
 class SceneHistory():
@@ -7,7 +8,7 @@ class SceneHistory():
 
         self.history_stack = []
         self.history_current_step = -1
-        self.history_limit = 8
+        self.history_limit = 32
 
     def undo(self):
         logger.debug("[pink3]UNDO[/]")
@@ -44,7 +45,41 @@ class SceneHistory():
         logger.debug(f"[pink3]Storing history[/] {desc} current_step: #{self.history_current_step} ({len(self.history_stack)})")
 
     def createHistoryStamp(self, desc):
-        return desc
+        selected_obj = {
+            'nodes': [],
+            'edges': [],
+        }
+
+        for item in self.scene.grScene.selectedItems():
+            if hasattr(item, 'node'):
+                selected_obj['nodes'].append(item.node.id)
+            elif isinstance(item, QDMGraphicsEdge):
+                selected_obj['edges'].append(item.edge.id)
+
+        history_stamp = {
+            'desc': desc,
+            'snapshot': self.scene.serialize(),
+            'selection': selected_obj,
+        }
+
+        return history_stamp
+
 
     def restoreHistoryStamp(self, history_stamp):
-        logger.debug(f"RHS: {history_stamp}")
+        logger.debug(f"RHS: {history_stamp['desc']}")
+
+        self.scene.deserialize(history_stamp['snapshot'])
+
+        # restore selection
+        for edge_id in history_stamp['selection']['edges']:
+            for edge in self.scene.edges:
+                if edge.id == edge_id:
+                    edge.grEdge.setSelected(True)
+                    break
+
+        for node_id in history_stamp['selection']['nodes']:
+            for node in self.scene.nodes:
+                if node.id == node_id:
+                    node.grNode.setSelected(True)
+                    break
+

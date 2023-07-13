@@ -36,6 +36,8 @@ class QDMGraphicsNode(QGraphicsItem):
         self.initContent()
 
         self.initUI()
+
+        self.moved_flag = False
     
     def initUI(self):
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsMovable)
@@ -104,3 +106,12 @@ class QDMGraphicsNode(QGraphicsItem):
         for node in self.scene().scene.nodes:
             if node.grNode.isSelected():
                 node.updateConnectedEdges()
+        
+        self.moved_flag = True
+    
+    def mouseReleaseEvent(self, event: QGraphicsSceneMouseEvent) -> None:
+        super().mouseReleaseEvent(event)
+
+        if self.moved_flag:
+            self.moved_flag = False
+            self.node.scene.history.storeHistory(f'{self.node} moved')

@@ -26,6 +26,7 @@ class QDMGraphicsView(QGraphicsView):
 
         self.mode = MODE_NOOP
         self.editing_flag = False
+        self.selecting_flag = False
         self.edge_drag_threshold_sq = 10 ** 2
 
         self.zoomIn_factor = 1.25
@@ -126,7 +127,7 @@ class QDMGraphicsView(QGraphicsView):
                 QApplication.setOverrideCursor(Qt.CursorShape.CrossCursor)
                 return
             else:
-                self.selecting = True
+                self.selecting_flag = True
                 self.setDragMode(QGraphicsView.DragMode.RubberBandDrag)
         
         logger.debug(f'LMB Press on {item}')
@@ -159,8 +160,11 @@ class QDMGraphicsView(QGraphicsView):
     def leftMouseButtonReleaseHandler(self, event: QMouseEvent):
         item = self.getItemAtClicked(event)
 
-        self.selecting = False
-        self.setDragMode(QGraphicsView.DragMode.NoDrag)
+        if self.selecting_flag:
+            self.selecting_flag = False
+            self.setDragMode(QGraphicsView.DragMode.NoDrag)
+            # if len(self.grScene.selectedItems()) != 0:
+            self.grScene.scene.history.storeHistory('Selection changed')
 
         # logger.debug(f'LMB Release on {item}')
 
@@ -257,6 +261,7 @@ class QDMGraphicsView(QGraphicsView):
                 self.drag_edge.start_socket.setConnectedEdge(self.drag_edge)
                 self.drag_edge.end_socket.setConnectedEdge(self.drag_edge)
                 self.drag_edge.updatePosition() # 连接后，虚线立即变实线
+                self.grScene.scene.history.storeHistory(f"Created new edge {self.drag_edge} by dragging")
                 logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   connected edge {self.drag_edge} {self.drag_edge.start_socket} <---> {self.drag_edge.end_socket}')
                 return True
 
@@ -280,6 +285,8 @@ class QDMGraphicsView(QGraphicsView):
             for edge in self.grScene.scene.edges:
                 if edge.grEdge.intersectsWith(p1, p2):
                     edge.remove()
+        
+        self.grScene.scene.history.storeHistory("Delete cutted edges")
     
     ###########################################################################
     ############################## 滚轮事件 ####################################
@@ -320,19 +327,14 @@ class QDMGraphicsView(QGraphicsView):
             self.grScene.scene.saveToFile('graph.json')
         elif event.modifiers() & Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_L:
             self.grScene.scene.loadFromFile('graph.json')
-        elif event.key() == Qt.Key.Key_1:
-            self.grScene.scene.history.storeHistory("Item A")
-        elif event.key() == Qt.Key.Key_2:
-            self.grScene.scene.history.storeHistory("Item B")
-        elif event.key() == Qt.Key.Key_3:
-            self.grScene.scene.history.storeHistory("Item C")
-        elif event.key() == Qt.Key.Key_4:
+        elif event.modifiers() & Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_Z:
             self.grScene.scene.history.undo()
-        elif event.key() == Qt.Key.Key_5:
+        elif event.modifiers() & Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_R:
             self.grScene.scene.history.redo()
         elif event.key() == Qt.Key.Key_H:
-            logger.debug(self.grScene.scene.history.history_stack)
-            logger.debug(self.grScene.scene.history.history_current_step)
+            logger.debug(f"Current Step: {self.grScene.scene.history.history_current_step}")
+            for i, history in enumerate(self.grScene.scene.history.history_stack):
+                logger.debug(f"Step {i}: {history['desc']} {history['selection']}")
         else:
             super().keyPressEvent(event)
 
@@ -342,6 +344,8 @@ class QDMGraphicsView(QGraphicsView):
                 item.edge.remove()
             elif hasattr(item, 'node'):
                 item.node.remove()
+        
+        self.grScene.scene.history.storeHistory("Delete seleted")
     
     def getItemAtClicked(self, event):
         pos = event.pos()

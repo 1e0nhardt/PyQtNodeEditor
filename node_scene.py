@@ -74,6 +74,6 @@ class Scene(Serializable):
         for edge_data in data['edges']:
             Edge(self).deserialize(edge_data, hashmap)
 
-        print(hashmap)
+        # logger.debug(hashmap)
 
         return True

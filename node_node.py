@@ -89,6 +89,7 @@ class Node(Serializable):
         })
     
     def deserialize(self, data, hashmap=...):
+        self.id = data['id']
         hashmap[data['id']] = self
 
         self.setPos(data['pos_x'], data['pos_y'])
