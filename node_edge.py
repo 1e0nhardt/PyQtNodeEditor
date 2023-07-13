@@ -1,16 +1,20 @@
+from collections import OrderedDict
 from node_graphics_edge import QDMGraphicsEdgeDirect, QDMGraphicsEdgeBezier
 from utils import logger
+from node_serializable import Serializable
 
 EDGE_TYPE_DIRCET=1
 EDGE_TYPE_BEZIER=2
 
 
-class Edge(object):
+class Edge(Serializable):
 
     def __init__(self, scene, start_socket, end_socket, edge_type=EDGE_TYPE_BEZIER) -> None:
+        super().__init__()
         self.scene = scene
         self.start_socket = start_socket
         self.end_socket = end_socket
+        self.edge_type = edge_type
 
         self.start_socket.setConnectedEdge(self)
         if self.end_socket is not None:
@@ -55,6 +59,17 @@ class Edge(object):
         logger.debug(f'$  remove edge from scene')
         self.scene.removeEdge(self)
         logger.debug(f'$  all done!')
+        
+    def serialize(self):
+        return OrderedDict({
+            'id': self.id,
+            'edge_type': self.edge_type,
+            'start': self.start_socket.id,
+            'end': self.end_socket.id,
+        })
+    
+    def deserialize(self, data, hashmap=...):
+        return super().deserialize(data, hashmap)
     
     def __str__(self):
         return f'<Edge {hex(id(self))}>'

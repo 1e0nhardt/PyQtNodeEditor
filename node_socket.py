@@ -1,13 +1,16 @@
+from collections import OrderedDict
 from node_graphics_socket import QDMGraphicsSocket
+from node_serializable import Serializable
 
 TOP_LEFT = 1
 BOTTOM_LEFT = 2
 TOP_RIGHT = 3
 BOTTOM_RIGHT = 4
 
-class Socket(object):
+class Socket(Serializable):
 
     def __init__(self, node, index=0, position=TOP_LEFT, socket_type=1) -> None:
+        super().__init__()
         self.node = node
         self.index = index
         self.position = position
@@ -26,6 +29,17 @@ class Socket(object):
 
     def hasEdge(self):
         return self.edge is not None
+    
+    def serialize(self):
+        return OrderedDict({
+            'id': self.id,
+            'index': self.index,
+            'position': self.position,
+            'socket_type': self.socket_type
+        })
+    
+    def deserialize(self, data, hashmap=...):
+        return False
     
     def __str__(self):
         return f'<Socket {hex(id(self))}>'
