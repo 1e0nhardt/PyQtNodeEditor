@@ -4,6 +4,7 @@ from node_graphics_scene import QDMGraphicsScene
 from node_node import Node
 from node_serializable import Serializable
 from node_scene_history import SceneHistory
+from node_scene_clipboard import SceneClipboard
 import json
 from utils import logger
 
@@ -18,6 +19,7 @@ class Scene(Serializable):
         self.scene_height = 64000
 
         self.history = SceneHistory(self)
+        self.clipboard = SceneClipboard(self)
 
         self.initUI()
     

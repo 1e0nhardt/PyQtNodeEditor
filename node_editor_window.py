@@ -1,3 +1,4 @@
+import json
 import os
 
 from PyQt6.QtCore import *
@@ -32,6 +33,11 @@ class NodeEditorWindow(QMainWindow):
         edit_menu.addAction(self.createAct('&Undo', 'Ctrl+Z', "Undo last operation", self.onEditUndo))
         edit_menu.addAction(self.createAct('&Redo', 'Ctrl+R', "Redo last operation", self.onEditRedo))
         edit_menu.addSeparator()
+        edit_menu.addAction(self.createAct('Cu&t', 'Ctrl+X', "Cut to clipboard", self.onEditCut))
+        edit_menu.addAction(self.createAct('&Copy', 'Ctrl+C', "Copy to clipboard", self.onEditCopy))
+        edit_menu.addAction(self.createAct('&Paste', 'Ctrl+V', "Paste from clipboard", self.onEditPaste))
+        edit_menu.addSeparator()
+
         edit_menu.addAction(self.createAct('&Delete', 'Del', "Delete selected items", self.onEditDelete))
 
         # create node editor widget
@@ -89,6 +95,34 @@ class NodeEditorWindow(QMainWindow):
 
     def onEditDelete(self):
         self.centralWidget().scene.grScene.views()[0].deleteSelectedItems()
+    
+    def onEditCut(self):
+        data = self.centralWidget().scene.clipboard.serializeSelected(delete=True)
+        str_data = json.dumps(data, indent=4)
+        QApplication.instance().clipboard().setText(str_data)
+
+    def onEditCopy(self):
+        data = self.centralWidget().scene.clipboard.serializeSelected(delete=False)
+        str_data = json.dumps(data, indent=4)
+        QApplication.instance().clipboard().setText(str_data)
+
+    def onEditPaste(self):
+        raw_data = QApplication.instance().clipboard().text()
+        print(raw_data)
+
+        try:
+            data = json.loads(raw_data)
+        except ValueError as e:
+            print("Pasting of not valid json data!", e)
+            return
+
+        # check if the json data are correct
+        if 'nodes' not in data:
+            print("JSON does not contain any nodes!")
+            return
+
+        self.centralWidget().scene.clipboard.deserializeFromClipboard(data)
+
 
 
 
