@@ -15,6 +15,7 @@ MODE_EDGE_CUT = 3
 
 
 class QDMGraphicsView(QGraphicsView):
+    scenePosChanged = pyqtSignal(int, int) # 定义信号
 
     def __init__(self, grScene, parent=None):
         super().__init__(parent)
@@ -89,6 +90,11 @@ class QDMGraphicsView(QGraphicsView):
         if self.mode == MODE_EDGE_CUT:
             self.cutline.line_points.append(pos)
             self.cutline.update()
+        
+        self.last_scene_mouse_position = self.mapToScene(event.pos())
+        self.scenePosChanged.emit(
+            int(self.last_scene_mouse_position.x()), int(self.last_scene_mouse_position.y())
+        )
 
         super().mouseMoveEvent(event)
 
@@ -323,18 +329,18 @@ class QDMGraphicsView(QGraphicsView):
                 super().keyPressEvent(event)
             else:
                 self.deleteSelectedItems()
-        elif event.modifiers() & Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_S:
-            self.grScene.scene.saveToFile('graph.json')
-        elif event.modifiers() & Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_L:
-            self.grScene.scene.loadFromFile('graph.json')
-        elif event.modifiers() & Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_Z:
-            self.grScene.scene.history.undo()
-        elif event.modifiers() & Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_R:
-            self.grScene.scene.history.redo()
-        elif event.key() == Qt.Key.Key_H:
-            logger.debug(f"Current Step: {self.grScene.scene.history.history_current_step}")
-            for i, history in enumerate(self.grScene.scene.history.history_stack):
-                logger.debug(f"Step {i}: {history['desc']} {history['selection']}")
+        # elif event.modifiers() & Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_S:
+        #     self.grScene.scene.saveToFile('graph.json')
+        # elif event.modifiers() & Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_L:
+        #     self.grScene.scene.loadFromFile('graph.json')
+        # elif event.modifiers() & Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_Z:
+        #     self.grScene.scene.history.undo()
+        # elif event.modifiers() & Qt.KeyboardModifier.ControlModifier and event.key() == Qt.Key.Key_R:
+        #     self.grScene.scene.history.redo()
+        # elif event.key() == Qt.Key.Key_H:
+        #     logger.debug(f"Current Step: {self.grScene.scene.history.history_current_step}")
+        #     for i, history in enumerate(self.grScene.scene.history.history_stack):
+        #         logger.debug(f"Step {i}: {history['desc']} {history['selection']}")
         else:
             super().keyPressEvent(event)
 
