@@ -13,7 +13,7 @@ from node_edge import *
 from utils import logger
 
 
-class NodeEditorWnd(QWidget):
+class NodeEditorWidget(QWidget):
 
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
