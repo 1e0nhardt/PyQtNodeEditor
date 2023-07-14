@@ -88,8 +88,9 @@ class Node(Serializable):
             'content': self.content.serialize()
         })
     
-    def deserialize(self, data, hashmap=...):
-        self.id = data['id']
+    def deserialize(self, data, hashmap=..., restore_id=True):
+        if restore_id:
+            self.id = data['id']
         hashmap[data['id']] = self
 
         self.setPos(data['pos_x'], data['pos_y'])
@@ -100,12 +101,12 @@ class Node(Serializable):
 
         for socket_data in data['inputs']:
             socket = Socket(self, socket_data['index'], socket_data['position'], socket_data['socket_type'])
-            socket.deserialize(socket_data, hashmap)
+            socket.deserialize(socket_data, hashmap, restore_id)
             self.inputs.append(socket)
 
         for socket_data in data['outputs']:
             socket = Socket(self, socket_data['index'], socket_data['position'], socket_data['socket_type'])
-            socket.deserialize(socket_data, hashmap)
+            socket.deserialize(socket_data, hashmap, restore_id)
             self.outputs.append(socket)
 
         return True

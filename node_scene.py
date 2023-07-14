@@ -64,17 +64,18 @@ class Scene(Serializable):
             'edges': edges
         })
     
-    def deserialize(self, data, hashmap=...):
+    def deserialize(self, data, hashmap=..., restore_id=True):
         self.clear()
         hashmap = {}
 
-        self.id = data['id']
+        if restore_id:
+            self.id = data['id']
 
         for node_data in data['nodes']:
-            Node(self).deserialize(node_data, hashmap)
+            Node(self).deserialize(node_data, hashmap, restore_id)
         
         for edge_data in data['edges']:
-            Edge(self).deserialize(edge_data, hashmap)
+            Edge(self).deserialize(edge_data, hashmap, restore_id)
 
         # logger.debug(hashmap)
 
