@@ -1,3 +1,5 @@
+import typing
+
 from PyQt6 import QtGui
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
@@ -8,6 +10,8 @@ from node_graphics_edge import QDMGraphicsEdge
 from node_graphics_socket import QDMGraphicsSocket
 from node_graphics_cutline import QDMCutline
 from utils import logger
+if typing.TYPE_CHECKING:
+    from node_graphics_scene import QDMGraphicsScene
 
 MODE_NOOP = 1
 MODE_EDGE_DRAG = 2
@@ -17,7 +21,7 @@ MODE_EDGE_CUT = 3
 class QDMGraphicsView(QGraphicsView):
     scenePosChanged = pyqtSignal(int, int) # 定义信号
 
-    def __init__(self, grScene, parent=None):
+    def __init__(self, grScene: 'QDMGraphicsScene', parent=None):
         super().__init__(parent)
         self.grScene = grScene
 
@@ -229,13 +233,13 @@ class QDMGraphicsView(QGraphicsView):
         super().mouseReleaseEvent(event)
     
     #! logic functions
-    def distBetweenClickAndReleaseIsOff(self, event):
+    def distBetweenClickAndReleaseIsOff(self, event: QMouseEvent):
         new_lmb_press_pos = self.mapToScene(event.pos())
         mouse_move_dist = new_lmb_press_pos - self.last_lmb_press_pos
         logger.debug(f'Distance: {mouse_move_dist}')
         return mouse_move_dist.x()**2 + mouse_move_dist.y()**2 > self.edge_drag_threshold_sq
     
-    def edgeDragStart(self, item):
+    def edgeDragStart(self, item: QGraphicsItem):
         logger.debug('[dark_orange]View::edgeDragStart[/] $ Start dragging edge')
         logger.debug('[dark_orange]View::edgeDragStart[/] $   get previouse edge')
         self.previous_edge = item.socket.edge # 起始socket是否已经有边
@@ -244,7 +248,7 @@ class QDMGraphicsView(QGraphicsView):
         self.drag_edge = Edge(self.grScene.scene, item.socket, None)
         logger.debug(f'[dark_orange]View::edgeDragStart[/] $   drag edge {self.drag_edge}')
 
-    def edgeDragEnd(self, item):
+    def edgeDragEnd(self, item: QGraphicsItem):
         """return True if want to skip event propagate"""
         self.mode = MODE_NOOP
         logger.debug('[dark_orange]View::edgeDragEnd[/] $ End dragging edge')
@@ -354,6 +358,6 @@ class QDMGraphicsView(QGraphicsView):
         
         self.grScene.scene.history.storeHistory("Delete seleted")
     
-    def getItemAtClicked(self, event):
+    def getItemAtClicked(self, event: QMouseEvent):
         pos = event.pos()
         return self.itemAt(pos)

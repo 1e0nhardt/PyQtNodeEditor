@@ -1,9 +1,14 @@
+import typing
+
 from node_graphics_edge import QDMGraphicsEdge
 from utils import logger
 
+if typing.TYPE_CHECKING:
+    from node_scene import Scene
+
 class SceneHistory():
 
-    def __init__(self, scene):
+    def __init__(self, scene: 'Scene'):
         self.scene = scene
 
         self.history_stack = []

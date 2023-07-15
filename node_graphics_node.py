@@ -5,10 +5,12 @@ from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtWidgets import QGraphicsSceneMouseEvent
 
+if typing.TYPE_CHECKING:
+    from node_node import Node
 
 class QDMGraphicsNode(QGraphicsItem):
     
-    def __init__(self, node, parent=None) -> None:
+    def __init__(self, node: 'Node', parent=None) -> None:
         super().__init__(parent)
         self.node = node
         self.content = self.node.content
@@ -67,7 +69,7 @@ class QDMGraphicsNode(QGraphicsItem):
     def title(self):
         return self._title
     @title.setter
-    def title(self, value):
+    def title(self, value: str):
         self._title = value
         self.title_item.setPlainText(self._title)
     

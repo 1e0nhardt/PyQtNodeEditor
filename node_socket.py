@@ -1,6 +1,11 @@
 from collections import OrderedDict
+import typing
 from node_graphics_socket import QDMGraphicsSocket
 from node_serializable import Serializable
+
+if typing.TYPE_CHECKING:
+    from node_node import Node
+    from node_edge import Edge
 
 TOP_LEFT = 1
 BOTTOM_LEFT = 2
@@ -9,7 +14,7 @@ BOTTOM_RIGHT = 4
 
 class Socket(Serializable):
 
-    def __init__(self, node, index=0, position=TOP_LEFT, socket_type=1) -> None:
+    def __init__(self, node: 'Node', index: int = 0, position=TOP_LEFT, socket_type=1) -> None:
         super().__init__()
         self.node = node
         self.index = index
@@ -24,7 +29,7 @@ class Socket(Serializable):
     def getSocketPosition(self):
         return self.node.getSocketPosition(self.index, self.position)
 
-    def setConnectedEdge(self, edge):
+    def setConnectedEdge(self, edge: 'Edge'):
         self.edge = edge
 
     def hasEdge(self):
@@ -38,7 +43,7 @@ class Socket(Serializable):
             'socket_type': self.socket_type
         })
     
-    def deserialize(self, data, hashmap=..., restore_id=True):
+    def deserialize(self, data: OrderedDict, hashmap: typing.Optional[dict] = ..., restore_id: bool = True):
         if restore_id:
             self.id = data['id']
         hashmap[data['id']] = self

@@ -1,16 +1,20 @@
 from collections import OrderedDict
+import typing
 
 from node_edge import Edge
 from node_graphics_edge import QDMGraphicsEdge
 from node_node import Node
 from utils import logger
 
+if typing.TYPE_CHECKING:
+    from node_scene import Scene
+
 
 class SceneClipboard():
-    def __init__(self, scene):
+    def __init__(self, scene: 'Scene'):
         self.scene = scene
 
-    def serializeSelected(self, delete=False):
+    def serializeSelected(self, delete: bool =False):
         logger.debug('[red]--- copy to clipboard ---[/]')
 
         sel_nodes, sel_edges, sel_sockets = [], [], {}
@@ -62,7 +66,7 @@ class SceneClipboard():
 
         return data
 
-    def deserializeFromClipboard(self, data):
+    def deserializeFromClipboard(self, data: OrderedDict):
         logger.debug(f"deserializating from clipboard {data}")
 
         hashmap = {}

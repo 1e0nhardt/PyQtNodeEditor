@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import typing
 from node_edge import Edge
 from node_graphics_scene import QDMGraphicsScene
 from node_node import Node
@@ -27,16 +28,16 @@ class Scene(Serializable):
         self.grScene = QDMGraphicsScene(self)
         self.grScene.setScene(self.scene_width, self.scene_height)
     
-    def addNode(self, node):
+    def addNode(self, node: Node):
         self.nodes.append(node)
     
-    def addEdge(self, edge):
+    def addEdge(self, edge: Edge):
         self.edges.append(edge)
     
-    def removeNode(self, node):
+    def removeNode(self, node: Node):
         self.nodes.remove(node)
     
-    def removeEdge(self, edge):
+    def removeEdge(self, edge: Edge):
         if edge in self.edges: # 防止重复删除边时报错
             self.edges.remove(edge)
     
@@ -44,12 +45,12 @@ class Scene(Serializable):
         while len(self.nodes) > 0:
             self.nodes[0].remove()
 
-    def saveToFile(self, filename):
+    def saveToFile(self, filename: str):
         logger.info(f'saving to {filename}')
         with open(filename, 'w') as file:
             file.write(json.dumps(self.serialize(), indent=4))
     
-    def loadFromFile(self, filename):
+    def loadFromFile(self, filename: str):
         with open(filename, 'r') as file:
             raw_data = file.read()
             data = json.loads(raw_data)
@@ -66,7 +67,7 @@ class Scene(Serializable):
             'edges': edges
         })
     
-    def deserialize(self, data, hashmap=..., restore_id=True):
+    def deserialize(self, data: OrderedDict, hashmap: typing.Optional[dict] = ..., restore_id: bool = True):
         self.clear()
         hashmap = {}
 

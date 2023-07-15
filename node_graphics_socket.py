@@ -6,10 +6,13 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtWidgets import QGraphicsSceneMouseEvent
 from utils import logger
 
+if typing.TYPE_CHECKING:
+    from node_socket import Socket
+
 
 class QDMGraphicsSocket(QGraphicsItem):
 
-    def __init__(self, socket, socket_type=1):
+    def __init__(self, socket: 'Socket', socket_type=1):
         self.socket = socket
         super().__init__(socket.node.grNode)
 

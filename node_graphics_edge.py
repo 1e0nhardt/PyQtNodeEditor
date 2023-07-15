@@ -9,12 +9,14 @@ from PyQt6.QtWidgets import QStyleOptionGraphicsItem, QWidget
 
 from node_socket import *
 
+if typing.TYPE_CHECKING:
+    from node_edge import Edge
 
 EDGE_CP_ROUNDNESS = 50.0
 
 class QDMGraphicsEdge(QGraphicsPathItem):
 
-    def __init__(self, edge, parent=None):
+    def __init__(self, edge: 'Edge', parent=None):
         super().__init__(parent)
         self.edge = edge
 
@@ -54,10 +56,10 @@ class QDMGraphicsEdge(QGraphicsPathItem):
         path = self.calcPath()
         return cut_path.intersects(path)
     
-    def setStartPoint(self, x, y):
+    def setStartPoint(self, x: float, y: float):
         self.pointStart = [x, y]
     
-    def setDestPoint(self, x, y):
+    def setDestPoint(self, x: float, y: float):
         self.pointDest = [x, y]
     
 

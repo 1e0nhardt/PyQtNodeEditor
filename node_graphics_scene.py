@@ -1,14 +1,17 @@
 import math
+import typing
 
 from PyQt6 import QtCore, QtGui
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
+if typing.TYPE_CHECKING:
+    from node_scene import Scene
 
 class QDMGraphicsScene(QGraphicsScene):
     
-    def __init__(self, scene, parent=None):
+    def __init__(self, scene: 'Scene', parent=None):
         super().__init__(parent)
         self.scene = scene
 
@@ -27,7 +30,7 @@ class QDMGraphicsScene(QGraphicsScene):
 
         self.setBackgroundBrush(self._color_background)
     
-    def setScene(self, width, height):
+    def setScene(self, width: float, height: float):
         self.setSceneRect(-width//2, -height//2, width, height)
 
     def drawBackground(self, painter: QPainter, rect: QRectF) -> None:

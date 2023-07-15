@@ -1,6 +1,5 @@
 import typing
 
-from PyQt6 import QtCore
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
@@ -15,7 +14,7 @@ from utils import logger
 
 class NodeEditorWidget(QWidget):
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent: typing.Optional['QWidget'] = None) -> None:
         super().__init__(parent)
 
         self.stylesheet_filename = 'qss/nodestyle.qss'

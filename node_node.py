@@ -1,3 +1,4 @@
+import typing
 from node_graphics_node import QDMGraphicsNode
 from node_content_widget import QDMNodeContentWidget
 from node_socket import *
@@ -5,9 +6,12 @@ from utils import logger
 from node_serializable import Serializable
 from collections import OrderedDict
 
+if typing.TYPE_CHECKING:
+    from node_scene import Scene
+
 class Node(Serializable):
 
-    def __init__(self, scene, title='Undefined Node', inputs=[], outputs=[]) -> None:
+    def __init__(self, scene: 'Scene', title: str = 'Undefined Node', inputs: typing.List[int] = [], outputs: typing.List[int] = []) -> None:
         super().__init__()
         self.scene = scene
         self._title = title
@@ -31,7 +35,7 @@ class Node(Serializable):
             socket = Socket(self, index, position=TOP_RIGHT, socket_type=item)
             self.outputs.append(socket)
     
-    def getSocketPosition(self, index, position):
+    def getSocketPosition(self, index: int, position: int):
         x = 0 if (position in (BOTTOM_LEFT, TOP_LEFT)) else self.grNode.width
         
         if position in (BOTTOM_RIGHT, BOTTOM_LEFT):
@@ -49,11 +53,11 @@ class Node(Serializable):
     def title(self):
         return self._title
     @title.setter
-    def title(self, value):
+    def title(self, value: str):
         self._title = value
         self.grNode.title = value
 
-    def setPos(self, x, y):
+    def setPos(self, x: float, y: float):
         self.grNode.setPos(x, y)
 
     def updateConnectedEdges(self):
@@ -88,7 +92,7 @@ class Node(Serializable):
             'content': self.content.serialize()
         })
     
-    def deserialize(self, data, hashmap=..., restore_id=True):
+    def deserialize(self, data: OrderedDict, hashmap: typing.Optional[dict] = ..., restore_id: bool = True):
         if restore_id:
             self.id = data['id']
         hashmap[data['id']] = self

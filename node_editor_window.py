@@ -1,9 +1,9 @@
 import json
 import os
+import typing
 
-from PyQt6.QtCore import *
-from PyQt6.QtGui import *
-from PyQt6.QtWidgets import *
+from PyQt6.QtGui import QAction
+from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QFileDialog
 
 from node_editor_widget import NodeEditorWidget
 
@@ -55,14 +55,14 @@ class NodeEditorWindow(QMainWindow):
         self.setWindowTitle('Node Editor')
         self.show()
     
-    def createAct(self, name, shortcut, tooltip, callback):
+    def createAct(self, name: str, shortcut: str, tooltip: str, callback: typing.Callable):
         act = QAction(name, self)
         act.setShortcut(shortcut)
         act.setToolTip(tooltip)
         act.triggered.connect(callback)
         return act
 
-    def onScenePosChanged(self, x, y):
+    def onScenePosChanged(self, x: int, y: int):
         self.status_mouse_pos.setText("Scene Pos: [%d, %d]" % (x, y))
 
     def onFileNew(self):

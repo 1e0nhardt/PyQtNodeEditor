@@ -1,7 +1,12 @@
 from collections import OrderedDict
+import typing
 from node_graphics_edge import QDMGraphicsEdgeDirect, QDMGraphicsEdgeBezier
 from utils import logger
 from node_serializable import Serializable
+
+if typing.TYPE_CHECKING:
+    from node_socket import Socket
+    from node_scene import Scene
 
 EDGE_TYPE_DIRCET=1
 EDGE_TYPE_BEZIER=2
@@ -9,7 +14,7 @@ EDGE_TYPE_BEZIER=2
 
 class Edge(Serializable):
 
-    def __init__(self, scene, start_socket=None, end_socket=None, edge_type=EDGE_TYPE_BEZIER) -> None:
+    def __init__(self, scene: 'Scene', start_socket: 'Socket' = None, end_socket: 'Socket' = None, edge_type = EDGE_TYPE_BEZIER) -> None:
         super().__init__()
         self.scene = scene
         self.start_socket = start_socket
@@ -23,7 +28,7 @@ class Edge(Serializable):
         return self._start_socket
     
     @start_socket.setter
-    def start_socket(self, value):
+    def start_socket(self, value: 'Socket'):
         self._start_socket = value
         if value is not None:
             self._start_socket.setConnectedEdge(self)
@@ -33,7 +38,7 @@ class Edge(Serializable):
         return self._end_socket
     
     @end_socket.setter
-    def end_socket(self, value):
+    def end_socket(self, value: 'Socket'):
         self._end_socket = value
         if  value is not None:
             self._end_socket.setConnectedEdge(self)
@@ -42,7 +47,7 @@ class Edge(Serializable):
     def edge_type(self):
         return self._edge_type
     @edge_type.setter
-    def edge_type(self, value):
+    def edge_type(self, value: int):
         if hasattr(self, 'grEdge') and self.grEdge is not None:
             self.scene.grScene.removeItem(self.grEdge)
 
@@ -101,7 +106,7 @@ class Edge(Serializable):
             'end': self.end_socket.id,
         })
     
-    def deserialize(self, data, hashmap=..., restore_id=True):
+    def deserialize(self, data: OrderedDict, hashmap: typing.Optional[dict] = ..., restore_id: bool = True):
         if restore_id:
             self.id = data['id']
         self.start_socket = hashmap[data['start']]

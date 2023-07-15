@@ -1,15 +1,21 @@
+import typing
 from collections import OrderedDict
+
 from PyQt6 import QtGui
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
-from utils import logger
+
 from node_serializable import Serializable
+from utils import logger
+
+if typing.TYPE_CHECKING:
+    from node_node import Node
 
 
 class QDMNodeContentWidget(QWidget, Serializable):
     
-    def __init__(self, node, parent=None):
+    def __init__(self, node: 'Node', parent=None):
         super().__init__(parent)
         self.node = node
 
@@ -24,7 +30,7 @@ class QDMNodeContentWidget(QWidget, Serializable):
         self._layout.addWidget(self.widget_label)
         self._layout.addWidget(QDMTextEdit('foo'))
     
-    def setEditingFlag(self, flag):
+    def setEditingFlag(self, flag: bool):
         self.node.scene.grScene.views()[0].editing_flag = flag
     
     def serialize(self):
