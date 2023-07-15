@@ -279,7 +279,8 @@ class QDMGraphicsView(QGraphicsView):
         # 此时会从dragging edge调用该方法
         # 如果该socket原来已经连接了一个边，则socket会丢失对边的引用，导致拖动该节点时对应边不更新
         # 但是开始drag时引用已经变了，所以需要手动重新连接
-        item.socket.setConnectedEdge(self.previous_edge)
+        # 用self.last_start_socket可以同时处理取消创建边(item=None)的情况。
+        self.last_start_socket.setConnectedEdge(self.previous_edge)
         logger.debug('[dark_orange]View::edgeDragEnd[/] $   edge removed')
         
         return False
