@@ -217,7 +217,7 @@ class QDMGraphicsView(QGraphicsView):
         if isinstance(item, QDMGraphicsEdge):
             logger.debug(f'RMB DEBUG: {item.edge} connectting sockets {item.edge.start_socket} <---> {item.edge.end_socket}')
         elif type(item) is QDMGraphicsSocket:
-            logger.debug(f'RMB DEBUG: {item.socket} has {item.socket.edge}')
+            logger.debug(f'RMB DEBUG: {item.socket}')
         elif item is None:
             logger.debug(f'SCENE: {self.scene}')
             logger.debug(f'  NODES:')
@@ -242,8 +242,7 @@ class QDMGraphicsView(QGraphicsView):
     def edgeDragStart(self, item: QGraphicsItem):
         logger.debug('[dark_orange]View::edgeDragStart[/] $ Start dragging edge')
         logger.debug('[dark_orange]View::edgeDragStart[/] $   get previouse edge')
-        self.previous_edge = item.socket.edge # 起始socket是否已经有边
-        self.last_start_socket = item.socket
+        self.drag_start_socket = item.socket
         logger.debug('[dark_orange]View::edgeDragStart[/] $   assign start socket')
         self.drag_edge = Edge(self.grScene.scene, item.socket, None)
         logger.debug(f'[dark_orange]View::edgeDragStart[/] $   drag edge {self.drag_edge}')
@@ -254,22 +253,13 @@ class QDMGraphicsView(QGraphicsView):
         logger.debug('[dark_orange]View::edgeDragEnd[/] $ End dragging edge')
 
         if type(item) is QDMGraphicsSocket:
-            if item.socket != self.last_start_socket: # 在同一个socket上点击并释放时，无事发生
+            if item.socket != self.drag_start_socket: # 在同一个socket上点击并释放时，无事发生
                 logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   assign end sockets {item.socket}')
-                #TODO 目前一个socket只能连接一个edge
+                # 根据socket的类型决定是否清除已存在的边
+                if not item.socket.is_multi_edges:
+                    item.socket.removeAllEdges()
                 # 连接边 
-                if self.previous_edge is not None: # 令一个起点只有一个边，之前的边会删除
-                    logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   remove previous edge {self.previous_edge} {self.previous_edge.start_socket} <---> {self.previous_edge.end_socket}')
-                    self.previous_edge.remove()
-                    self.previous_edge = None
-                
-                # 从右向左连边
-                if item.socket.hasEdge():
-                    item.socket.edge.remove()
-
                 self.drag_edge.end_socket = item.socket
-                self.drag_edge.start_socket.setConnectedEdge(self.drag_edge)
-                self.drag_edge.end_socket.setConnectedEdge(self.drag_edge)
                 self.drag_edge.updatePosition() # 连接后，虚线立即变实线
                 self.grScene.scene.history.storeHistory(f"Created new edge {self.drag_edge} by dragging", setModified=True)
                 logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   connected edge {self.drag_edge} {self.drag_edge.start_socket} <---> {self.drag_edge.end_socket}')
@@ -279,12 +269,6 @@ class QDMGraphicsView(QGraphicsView):
         logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   removing edge {self.drag_edge}')
         self.drag_edge.remove()
         self.drag_edge = None
-        # 点击一个socket开始拖动后，又打算取消，在该socket上结束。
-        # 此时会从dragging edge调用该方法
-        # 如果该socket原来已经连接了一个边，则socket会丢失对边的引用，导致拖动该节点时对应边不更新
-        # 但是开始drag时引用已经变了，所以需要手动重新连接
-        # 用self.last_start_socket可以同时处理取消创建边(item=None)的情况。
-        self.last_start_socket.setConnectedEdge(self.previous_edge)
         logger.debug('[dark_orange]View::edgeDragEnd[/] $   edge removed')
         
         return False

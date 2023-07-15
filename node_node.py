@@ -28,11 +28,11 @@ class Node(Serializable):
         self.outputs = []
 
         for index, item in enumerate(inputs):
-            socket = Socket(self, index, position=BOTTOM_LEFT, socket_type=item)
+            socket = Socket(self, index, position=BOTTOM_LEFT, socket_type=item, multi_edges=False)
             self.inputs.append(socket)
         
         for index, item in enumerate(outputs):
-            socket = Socket(self, index, position=TOP_RIGHT, socket_type=item)
+            socket = Socket(self, index, position=TOP_RIGHT, socket_type=item, multi_edges=True)
             self.outputs.append(socket)
     
     def getSocketPosition(self, index: int, position: int):
@@ -62,16 +62,16 @@ class Node(Serializable):
 
     def updateConnectedEdges(self):
         for socket in self.inputs + self.outputs:
-            if socket.hasEdge():
-                socket.edge.updatePosition()
+            for edge in socket.edges:
+                edge.updatePosition()
     
     def remove(self):
         logger.debug(f'$ Removing node {self}')
         logger.debug(f'$  remove all edges')
         for socket in self.inputs + self.outputs:
-            if socket.hasEdge():
-                logger.debug(f'$    remove edge {socket.edge}')
-                socket.edge.remove()
+            for edge in socket.edges:
+                logger.debug(f'$    remove edge {edge} from socket {socket}')
+                edge.remove()
         logger.debug(f'$  remove grNode')
         self.scene.grScene.removeItem(self.grNode)
         self.grNode = None
@@ -104,12 +104,12 @@ class Node(Serializable):
         data['outputs'].sort(key=lambda socket: socket['index'] + socket['position'] * 10000)
 
         for socket_data in data['inputs']:
-            socket = Socket(self, socket_data['index'], socket_data['position'], socket_data['socket_type'])
+            socket = Socket(self, socket_data['index'], socket_data['position'], socket_data['socket_type'], multi_edges=socket_data['multi_edges'])
             socket.deserialize(socket_data, hashmap, restore_id)
             self.inputs.append(socket)
 
         for socket_data in data['outputs']:
-            socket = Socket(self, socket_data['index'], socket_data['position'], socket_data['socket_type'])
+            socket = Socket(self, socket_data['index'], socket_data['position'], socket_data['socket_type'], multi_edges=socket_data['multi_edges'])
             socket.deserialize(socket_data, hashmap, restore_id)
             self.outputs.append(socket)
 

@@ -56,11 +56,16 @@ class Scene(Serializable):
         self.edges.append(edge)
     
     def removeNode(self, node: Node):
-        self.nodes.remove(node)
-    
+        if node in self.nodes:
+            self.nodes.remove(node)
+        else:
+            logger.warn(f'[dark_orange]Scene::removeNode[/] want to remove node {node} from self.nodes, but it is not in the list')
+
     def removeEdge(self, edge: Edge):
         if edge in self.edges: # 防止重复删除边时报错
             self.edges.remove(edge)
+        else:
+            logger.warn(f'[dark_orange]Scene::removeEdge[/] want to remove edge {edge} from self.edges, but it is not in the list')
     
     def clear(self):
         while len(self.nodes) > 0:
@@ -81,7 +86,7 @@ class Scene(Serializable):
             raw_data = file.read()
             data = json.loads(raw_data)
             self.deserialize(data)
-            
+
         self.has_been_modified = False
 
     def serialize(self):
