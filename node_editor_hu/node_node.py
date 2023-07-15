@@ -1,13 +1,13 @@
 import typing
-from node_graphics_node import QDMGraphicsNode
-from node_content_widget import QDMNodeContentWidget
-from node_socket import *
-from utils import logger
-from node_serializable import Serializable
+from node_editor_hu.node_graphics_node import QDMGraphicsNode
+from node_editor_hu.node_content_widget import QDMNodeContentWidget
+from node_editor_hu.node_socket import *
+from node_editor_hu.utils import logger
+from node_editor_hu.node_serializable import Serializable
 from collections import OrderedDict
 
 if typing.TYPE_CHECKING:
-    from node_scene import Scene
+    from node_editor_hu.node_scene import Scene
 
 class Node(Serializable):
 

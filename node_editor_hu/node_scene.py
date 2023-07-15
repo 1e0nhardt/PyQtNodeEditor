@@ -1,13 +1,13 @@
 from collections import OrderedDict
 import typing
-from node_edge import Edge
-from node_graphics_scene import QDMGraphicsScene
-from node_node import Node
-from node_serializable import Serializable
-from node_scene_history import SceneHistory
-from node_scene_clipboard import SceneClipboard
+from node_editor_hu.node_edge import Edge
+from node_editor_hu.node_graphics_scene import QDMGraphicsScene
+from node_editor_hu.node_node import Node
+from node_editor_hu.node_serializable import Serializable
+from node_editor_hu.node_scene_history import SceneHistory
+from node_editor_hu.node_scene_clipboard import SceneClipboard
 import json
-from utils import logger
+from node_editor_hu.utils import logger
 
 class Scene(Serializable):
 

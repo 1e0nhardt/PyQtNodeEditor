@@ -4,14 +4,14 @@ from PyQt6 import QtGui
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
-from node_edge import Edge
-from node_graphics_edge import QDMGraphicsEdge
+from node_editor_hu.node_edge import Edge
+from node_editor_hu.node_graphics_edge import QDMGraphicsEdge
 
-from node_graphics_socket import QDMGraphicsSocket
-from node_graphics_cutline import QDMCutline
-from utils import logger
+from node_editor_hu.node_graphics_socket import QDMGraphicsSocket
+from node_editor_hu.node_graphics_cutline import QDMCutline
+from node_editor_hu.utils import logger
 if typing.TYPE_CHECKING:
-    from node_graphics_scene import QDMGraphicsScene
+    from node_editor_hu.node_graphics_scene import QDMGraphicsScene
 
 MODE_NOOP = 1
 MODE_EDGE_DRAG = 2

@@ -5,7 +5,7 @@ import typing
 from PyQt6.QtGui import QAction, QCloseEvent
 from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QFileDialog, QMessageBox
 
-from node_editor_widget import NodeEditorWidget
+from node_editor_hu.node_editor_widget import NodeEditorWidget
 
 
 class NodeEditorWindow(QMainWindow):

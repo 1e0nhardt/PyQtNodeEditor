@@ -6,7 +6,7 @@ from PyQt6.QtWidgets import *
 from PyQt6.QtWidgets import QGraphicsSceneMouseEvent
 
 if typing.TYPE_CHECKING:
-    from node_node import Node
+    from node_editor_hu.node_node import Node
 
 class QDMGraphicsNode(QGraphicsItem):
     

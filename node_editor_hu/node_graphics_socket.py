@@ -4,10 +4,10 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtWidgets import QGraphicsSceneMouseEvent
-from utils import logger
+from node_editor_hu.utils import logger
 
 if typing.TYPE_CHECKING:
-    from node_socket import Socket
+    from node_editor_hu.node_socket import Socket
 
 
 class QDMGraphicsSocket(QGraphicsItem):
