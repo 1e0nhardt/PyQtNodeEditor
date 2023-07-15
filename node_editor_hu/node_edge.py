@@ -1,12 +1,12 @@
 from collections import OrderedDict
 import typing
-from node_graphics_edge import QDMGraphicsEdgeDirect, QDMGraphicsEdgeBezier
-from utils import logger
-from node_serializable import Serializable
+from node_editor_hu.node_graphics_edge import QDMGraphicsEdgeDirect, QDMGraphicsEdgeBezier
+from node_editor_hu.utils import logger
+from node_editor_hu.node_serializable import Serializable
 
 if typing.TYPE_CHECKING:
-    from node_socket import Socket
-    from node_scene import Scene
+    from node_editor_hu.node_socket import Socket
+    from node_editor_hu.node_scene import Scene
 
 EDGE_TYPE_DIRCET=1
 EDGE_TYPE_BEZIER=2

@@ -1,10 +1,10 @@
 import typing
 
-from node_graphics_edge import QDMGraphicsEdge
-from utils import logger
+from node_editor_hu.node_graphics_edge import QDMGraphicsEdge
+from node_editor_hu.utils import logger
 
 if typing.TYPE_CHECKING:
-    from node_scene import Scene
+    from node_editor_hu.node_scene import Scene
 
 class SceneHistory():
 

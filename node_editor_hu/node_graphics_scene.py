@@ -7,7 +7,7 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 
 if typing.TYPE_CHECKING:
-    from node_scene import Scene
+    from node_editor_hu.node_scene import Scene
 
 class QDMGraphicsScene(QGraphicsScene):
     

@@ -6,11 +6,11 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 
-from node_serializable import Serializable
-from utils import logger
+from node_editor_hu.node_serializable import Serializable
+from node_editor_hu.utils import logger
 
 if typing.TYPE_CHECKING:
-    from node_node import Node
+    from node_editor_hu.node_node import Node
 
 
 class QDMNodeContentWidget(QWidget, Serializable):

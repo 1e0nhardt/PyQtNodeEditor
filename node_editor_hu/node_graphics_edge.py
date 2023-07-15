@@ -7,10 +7,10 @@ from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 from PyQt6.QtWidgets import QStyleOptionGraphicsItem, QWidget
 
-from node_socket import *
+from node_editor_hu.node_socket import *
 
 if typing.TYPE_CHECKING:
-    from node_edge import Edge
+    from node_editor_hu.node_edge import Edge
 
 EDGE_CP_ROUNDNESS = 50.0
 

@@ -1,13 +1,13 @@
 import typing
 from collections import OrderedDict
 
-from node_graphics_socket import QDMGraphicsSocket
-from node_serializable import Serializable
-from utils import logger
+from node_editor_hu.node_graphics_socket import QDMGraphicsSocket
+from node_editor_hu.node_serializable import Serializable
+from node_editor_hu.utils import logger
 
 if typing.TYPE_CHECKING:
-    from node_edge import Edge
-    from node_node import Node
+    from node_editor_hu.node_edge import Edge
+    from node_editor_hu.node_node import Node
 
 TOP_LEFT = 1
 BOTTOM_LEFT = 2

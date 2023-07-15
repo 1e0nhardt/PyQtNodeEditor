@@ -1,13 +1,13 @@
 from collections import OrderedDict
 import typing
 
-from node_edge import Edge
-from node_graphics_edge import QDMGraphicsEdge
-from node_node import Node
-from utils import logger
+from node_editor_hu.node_edge import Edge
+from node_editor_hu.node_graphics_edge import QDMGraphicsEdge
+from node_editor_hu.node_node import Node
+from node_editor_hu.utils import logger
 
 if typing.TYPE_CHECKING:
-    from node_scene import Scene
+    from node_editor_hu.node_scene import Scene
 
 
 class SceneClipboard():

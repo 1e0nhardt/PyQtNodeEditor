@@ -4,12 +4,12 @@ from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from PyQt6.QtWidgets import *
 
-from node_graphics_view import QDMGraphicsView
-from node_node import Node
-from node_scene import Scene
-from node_edge import *
+from node_editor_hu.node_graphics_view import QDMGraphicsView
+from node_editor_hu.node_node import Node
+from node_editor_hu.node_scene import Scene
+from node_editor_hu.node_edge import *
 
-from utils import logger
+from node_editor_hu.utils import logger
 
 
 class NodeEditorWidget(QWidget):

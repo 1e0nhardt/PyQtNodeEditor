@@ -7,6 +7,20 @@
 ## 贝塞尔曲线的选择范围
 存在起点和终点相同的直线和贝塞尔曲线时，选择不到直线。
 
+## cookiecutter
+1. 安装: `pip install cookiecutter`
+2. 创建模板: `cookiecutter gh:audreyfeldroy/cookiecutter-pypackage`，填入各种信息
+3. 模仿模板创建项目结构
+4. 创建项目包
+    - 测试安装: `pip install -e .`
+    - 源码包: `python setup.py sdist`
+    - wheel: `python setup.py bdist_wheel`
+    - wheel的安装: `pip install wheel_file.whl`
+5. 测试: tox
+6. MANIFEST.in 声明那些文件会为包含在package中
+7. 创建文档: sphinx, sphinx_rtd_theme
+8. 从github安装: `pip install git+https://github.com/1e0nhardt/PyQtNodeEditor.git`
+
 ## Summary
 ### ep1
 - 节点编辑器用QGraphicsView组件实现。
