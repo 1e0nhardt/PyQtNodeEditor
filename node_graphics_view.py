@@ -271,7 +271,7 @@ class QDMGraphicsView(QGraphicsView):
                 self.drag_edge.start_socket.setConnectedEdge(self.drag_edge)
                 self.drag_edge.end_socket.setConnectedEdge(self.drag_edge)
                 self.drag_edge.updatePosition() # 连接后，虚线立即变实线
-                self.grScene.scene.history.storeHistory(f"Created new edge {self.drag_edge} by dragging")
+                self.grScene.scene.history.storeHistory(f"Created new edge {self.drag_edge} by dragging", setModified=True)
                 logger.debug(f'[dark_orange]View::edgeDragEnd[/] $   connected edge {self.drag_edge} {self.drag_edge.start_socket} <---> {self.drag_edge.end_socket}')
                 return True
 
@@ -297,7 +297,7 @@ class QDMGraphicsView(QGraphicsView):
                 if edge.grEdge.intersectsWith(p1, p2):
                     edge.remove()
         
-        self.grScene.scene.history.storeHistory("Delete cutted edges")
+        self.grScene.scene.history.storeHistory("Delete cutted edges", setModified=True)
     
     ###########################################################################
     ############################## 滚轮事件 ####################################
@@ -356,7 +356,7 @@ class QDMGraphicsView(QGraphicsView):
             elif hasattr(item, 'node'):
                 item.node.remove()
         
-        self.grScene.scene.history.storeHistory("Delete seleted")
+        self.grScene.scene.history.storeHistory("Delete seleted", setModified=True)
     
     def getItemAtClicked(self, event: QMouseEvent):
         pos = event.pos()

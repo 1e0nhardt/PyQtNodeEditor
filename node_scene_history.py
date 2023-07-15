@@ -33,7 +33,10 @@ class SceneHistory():
         logger.debug(f"[pink3]Restoring history[/] .... current_step: #{self.history_current_step} ({len(self.history_stack)})")
         self.restoreHistoryStamp(self.history_stack[self.history_current_step])
 
-    def storeHistory(self, desc):
+    def storeHistory(self, desc: str, setModified: bool = False):
+        if setModified:
+            self.scene.has_been_modified = True
+
         # history_current_step没有指向栈头时去除之后的记录。(undo过)
         if self.history_current_step+1 < len(self.history_stack):
             self.history_stack = self.history_stack[0:self.history_current_step+1]
@@ -68,7 +71,6 @@ class SceneHistory():
         }
 
         return history_stamp
-
 
     def restoreHistoryStamp(self, history_stamp):
         logger.debug(f"RHS: {history_stamp['desc']}")

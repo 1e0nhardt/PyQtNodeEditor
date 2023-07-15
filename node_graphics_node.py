@@ -116,4 +116,4 @@ class QDMGraphicsNode(QGraphicsItem):
 
         if self.moved_flag:
             self.moved_flag = False
-            self.node.scene.history.storeHistory(f'{self.node} moved')
+            self.node.scene.history.storeHistory(f'{self.node} moved', setModified=True)
