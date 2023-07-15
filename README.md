@@ -21,6 +21,7 @@
 7. 创建文档: sphinx, sphinx_rtd_theme
 8. 从github安装: `pip install git+https://github.com/1e0nhardt/PyQtNodeEditor.git`
 
+
 ## Summary
 ### ep1
 - 节点编辑器用QGraphicsView组件实现。
